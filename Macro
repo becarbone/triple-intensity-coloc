@@ -14,9 +14,11 @@ resultdir=getDirectory("Choose Result Folder");
 
 //variable setup
 var greenThreshold, redThreshold, blueThreshold, areapercent, scale, minsize, maxsize, name, precount, postcount, POIcount, prepostcount, postprecount;
-var onestring, twostring, threestring, resultlist, FolderCreate, foldername, postprecount, prepostcount, totalpostprecount, totalprepostcount;
+var resultlist, FolderCreate, foldername, postprecount, prepostcount, totalpostprecount, totalprepostcount;
 var UMcountpostprepostpost, UMcountprepostprepre, str, prepostRatio, postpostRatio, ratioTemp, prepostArray, prepreArray, postpreArray, postpostArray, colors;
 var pre, post, POI, UMcountprePOIpostPOIPOIPOI, POIprecount, POIpostcount, marker, second, third, mscount, xpre, xpost, xPOI, countArray;
+var folderlist, rawdir, filelist, resultpath, totalPOIprecount, totalPOIpostcount, markersecondcount, markersecondArray, markerthirdcount, markerthirdArray;
+var totalmarkersecondcount, totalmarkerthirdcount;
 
 //three thresholds - specify which channel is for "pre-", post-, and protein of interest (POI)
 //restrict the ROI of the "presynaptic" marker to the puncta associated with postsynaptic puncta
@@ -27,6 +29,7 @@ var pre, post, POI, UMcountprePOIpostPOIPOIPOI, POIprecount, POIpostcount, marke
 
 // input parameter
 
+colors = newArray("Green", "Red", "Blue");
 parameterinput();
 
 print("Raw_Folder:	"+rawdir);
@@ -67,17 +70,16 @@ postprePOIArray = newArray("");
 //prepostRatio = newArray("");
 //postpostRatio = newArray("");
 
-UMcountprepostprepre = " Filename	#	AreaOfPuncta		PrePost%Overlap	PrePostmeanGrey	PrePostint_density(um)	PrePostraw_int_den(pix)		PrePre%Overlap	PrePremeanGrey	PrePreint_density(um)	PrePreraw_int_den(pix)\n";
-UMcountpostprepostpost = "Filename	#	AreaOfPuncta		PostPre%Overlap	PostPremeanGrey	PostPreint_density(um)	PostPreraw_int_den(pix)		PostPost%Overlap	PostPostmeanGrey	PostPostint_density(um)	PostPostraw_int_den(pix)\n";
-UMcountprePOIpostPOIPOIPOI = "Filename	#	AreaOfPuncta		PrePOI%Overlap	PrePOImeanGrey	PrePOIint_density(um)	PrePOIraw_int_den(pix)		PostPOI%Overlap	PostPOImeanGrey	PostPOIint_density(um)	PostPOIraw_int_den(pix)		POIPOI%Overlap	POIPOImeanGrey	POIPOIint_density(um)	POIPOIraw_int_den(pix)\n";
+UMcountprepostprepre = " Filename	#	AreaOfPuncta		PrePost%Overlap	PrePostmeanGrey	PrePostint_density(um)	PrePostraw_int_den(pix)			PrePre%Overlap	PrePremeanGrey	PrePreint_density(um)	PrePreraw_int_den(pix)\n";
+UMcountpostprepostpost = "Filename	#	AreaOfPuncta		PostPre%Overlap	PostPremeanGrey	PostPreint_density(um)	PostPreraw_int_den(pix)			PostPost%Overlap	PostPostmeanGrey	PostPostint_density(um)	PostPostraw_int_den(pix)\n";
+UMcountprePOIpostPOIPOIPOI = "Filename	#	AreaOfPuncta		PrePOI%Overlap	PrePOImeanGrey	PrePOIint_density(um)	PrePOIraw_int_den(pix)			PostPOI%Overlap	PostPOImeanGrey	PostPOIint_density(um)	PostPOIraw_int_den(pix)			POIPOI%Overlap	POIPOImeanGrey	POIPOIint_density(um)	POIPOIraw_int_den(pix)\n";
 
 
 //"foldercreate" is for generation of result folders - at the time of making this, it didn't allow for autoselection
 //of the result folder with the code. Might be worth going back thru to see if it can be done a diff
 //way that reduces the input I've gotta do
 
-for(f=0;f<folderlist.length;f++) 
-	{
+for(f=0;f<folderlist.length;f++) {
 	foldername = File.getName(rawdir+folderlist[f]);
 	File.makeDirectory(resultdir+foldername);
 	rawlist=getFileList(rawdir+foldername);
@@ -96,8 +98,7 @@ for(f=0;f<folderlist.length;f++)
 	prepostPOIArray = Array.concat(prepostPOIArray,folderlist[f]+"\n");
 	postprePOIArray = Array.concat(postprePOIArray,"");
 
-	for(d=0;d<filelist.length;d++)
-		{
+	for(d=0;d<filelist.length;d++) {
 		//initialize :  open file, split channel, name by "red"/"green"/"blue"/"axon"
 		initialize();
 
@@ -133,41 +134,22 @@ for(f=0;f<folderlist.length;f++)
 				marker = pre;
 				//setting up the color for the image 
 				second = post;
-				//setting up variables to store colocalization count in
-				markersecondcount = prepostcount;
-				markerthirdcount = 0;
-				totalmarkersecondcount = totalprepostcount;
-				totalmarkerthirdcount = 0;
-				markersecondArray = prepostArray;
-				markerthirdArray = 0;
-				markermarkerArray = prepreArray;
+				count = precount;
 			}
 			if(r==1){
 				marker = post;
 				second = pre;
-				markersecondcount = postprecount;
-				markerthirdcount = 0;
-				totalmarkersecondcount = totalpostprecount;
-				totalmarkerthirdcount = 0;
-				markersecondArray = postpreArray;
-				markerthirdArray = 0;
-				markermarkerArray = postpostArray;
+				count = postcount;
 			}
 			if(r==2){
 				marker = POI;
 				second = pre;
 				third = post;
-				markersecondcount = POIprecount;
-				markerthirdcount = POIpostcount;
-				totalmarkersecondcount = totalPOIprecount;
-				totalmarkerthirdcount = totalPOIpostcount;
-				markersecondArray = POIpreArray;
-				markerthirdArray = POIpostArray;
-				markermarkerArray = POIPOIArray;
+				count = POIcount;
 			}
 
 			roiManager("reset");
-			if( markersecondcount > 0 ) {
+			if(count > 0) {
 	 	 		roiManager("Open", resultdir+folderlist[f]+name+"_"+marker+"_ROI.zip");
 				}
 			selectImage(second+" mask");
@@ -176,14 +158,50 @@ for(f=0;f<folderlist.length;f++)
 			mscount=0;
 			x = 0;
 			for(i=0;i<roiManager("Count");i++) {
-				totalmarkersecondcount = totalmarkersecondcount + getResult("%Area",i);
-				if( getResult("%Area",i) >= areapercent ) {
+				if(r==0){
+					totalprepostcount = totalprepostcount + getResult("%Area",i);
+				}
+				if(r==1){
+					totalpostprecount = totalpostprecount + getResult("%Area",i);
+				}
+				if(r==2){
+					totalPOIprecount = totalPOIprecount + getResult("%Area",i);
+				}
+				
+				if(getResult("%Area",i) >= areapercent) {
 					mscount++;
-					markersecondcount = markersecondcount + getResult("%Area",i);
+					if(r==0){
+						prepostcount = prepostcount + getResult("%Area",i);
+					}
+					if(r==1){
+						postprecount = postprecount + getResult("%Area",i);
+					}
+					if(r==2){
+						POIprecount = POIprecount + getResult("%Area",i);
+					}
 				}
 				x++;
 			}
-	
+			if(r==2){
+				roiManager("reset");
+				if(POIcount> 0 ) {
+	 	 			roiManager("Open", resultdir+folderlist[f]+name+"_"+marker+"_ROI.zip");
+				}
+				selectImage(second+" mask");
+				run("Clear Results");
+				roiManager("Measure");
+				mscount=0;
+				v = 0;
+				for(i=0;i<roiManager("Count");i++) {
+					totalPOIpostcount = totalPOIpostcount + getResult("%Area",i);
+					if(getResult("%Area",i) >= areapercent ) {
+						mscount++;
+						POIpostcount = POIpostcount + getResult("%Area",i);
+					}
+					v++;
+				}
+			}
+			
 			//channel-unmask is the direct image, without a mask
 	
 			selectImage(second+"-unmask");
@@ -191,35 +209,56 @@ for(f=0;f<folderlist.length;f++)
 			roiManager("Measure");
 			for(i=0;i<roiManager("Count");i++) {
 				//this str just stores the values from the ROI measure function to be put into the appropriate array for the green ROI
-				str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-				markersecondArray = Array.concat(markersecondArray,str);
+				str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
+				if(r==0){
+					prepostArray = Array.concat(prepostArray,str);
+				}
+				if(r==1){
+					postpreArray = Array.concat(postpreArray,str);
+				}
+				if(r==2){
+					POIpreArray = Array.concat(POIpreArray,str);
+				}
 			}
 			selectImage(marker+"-unmask");
 			run("Clear Results");
 			roiManager("Measure");
 			for(i=0;i<roiManager("Count");i++) {
 				str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
-				markermarkerArray = Array.concat(markermarkerArray,str);
+				if(r==0){
+					prepreArray = Array.concat(prepreArray,str);
+				}
+				if(r==1){
+					postpostArray = Array.concat(postpostArray,str);
+				}
+				if(r==2){
+					POIPOIArray = Array.concat(POIPOIArray,str);
+				}
 			}
-			if(third !=0){
+			if(third !=0)	{
 				selectImage(third+"-unmask");
 				run("Clear Results");
 				roiManager("Measure");
 				for(i=0;i<roiManager("Count");i++) {
 					str =  "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-					markerthirdArray = Array.concat(markerthirdArray,str);
+					POIpostArray = Array.concat(POIpostArray,str);
+				
 				}
 				//find the pre/post ROI that are associated w/ pre/post puncta and use those over the POI image
 			}
+
+			Array.show(POIpostArray);
 			
-			if(r==0){
+			if(r==0)	{
 				xpre = x;
 			}
-			if(r==1){
+			if(r==1)	{
 				xpost = x;
 			}
-			if(r==2){
+			if(r==2)	{
 				xPOI = x;
+				vPOI = v;
+				countArray = 0;
 				roiManager("reset"); 
 				roiManager("Open", resultdir+folderlist[f]+name+"_"+second+"_ROI.zip");
 				selectImage(third+"-unmask");
@@ -228,58 +267,89 @@ for(f=0;f<folderlist.length;f++)
 				//For the "triple coloc" have the GR, GG, RG, RR associated with the third channel - in this case 
 				//roiManager("Select", 0);
 				for(i=0;i<roiManager("Count");i++) {
-					tempArea = getResult("%Area",i);
-					if(tempArea>25)	{
+					if(getResult("%Area",i)>25)	{
 						countArray = Array.concat(countArray,i);
 					}
 				}
 				run("Clear Results");
 				selectImage(marker+"-unmask");
-				for(j=0;j<lengthof.countArray;j++){
+				for(j=0;j<countArray.length;j++)	{
 					roiManager("Select", countArray[j]);
 					roiManager("Measure");
-					str = filelist[d]+"	"+j+1+"	"+getResult("Area",j)+"	"+getResult("%Area",j)+"	"+ getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j);
+					str = filelist[d]+"	"+j+1+"	"+getResult("Area",j)+"		"+getResult("%Area",j)+"	"+ getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j);
 				}
 				prepostPOIArray = Array.concat(prepostPOIArray,str);
 				
+				countArray = 0;
+				roiManager("reset"); 
+				roiManager("Open", resultdir+folderlist[f]+name+"_"+third+"_ROI.zip");
+				selectImage(second+"-unmask");
+				run("Clear Results");
+				roiManager("Measure");
+				//For the "triple coloc" have the GR, GG, RG, RR associated with the third channel - in this case 
+				//roiManager("Select", 0);
 				for(i=0;i<roiManager("Count");i++) {
-				postprePOIArray = newArray("");
+					if(getResult("%Area",i)>25)	{
+						countArray = Array.concat(countArray,i);
+					}
 				}
+				run("Clear Results");
+				selectImage(marker+"-unmask");
+				for(j=0;j<countArray.length;j++)	{
+					roiManager("Select", countArray[j]);
+					roiManager("Measure");
+					str = filelist[d]+"	"+j+1+"	"+getResult("Area",j)+"		"+getResult("%Area",j)+"	"+ getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j);
+				}
+				postprePOIArray = Array.concat(postprePOIArray,str);
 			}
-			totalmarkersecondcount = totalmarkersecondcount/x;
-			markersecondcount = markersecondcount/mscount;
-			if(third != 0){
-				markerthirdcount = markerthirdcount/mscount;
+			if(r==0){
+				totalprepostcount = totalprepostcount/x;
+				prepostcount = prepostcount/mscount;
+			}
+			if(r==1){
+				totalpostprecount = totalpostprecount/x;
+				postprecountcount = postprecountcount/mscount;
+			}
+			if(r==2){
+				totalPOIprecount = totalPOIprecount/x;
+				POIprecountcount = POIprecountcount/mscount;
+				totalPOIpostcount = totalPOIpostcount/v;
+				POIpostcount = POIpostcount/mscount;
 			}
 			
 			roiManager("reset"); 
 			run("Clear Results");
 			//prints this + variable strings produced from the other functions to the log to be saved
-			print(name+"	"+precount+"	"+postcount+"	"+POIcount+"	"+prepostcount+"	"+postprecount+"	"+"dendritelength"+"	"+(precount+"/dendritelength")+"	"+(postcount+"/dendritelength")+"	"+(postprecount+"/dendritelength")+"	"+(prepostcount+"/dendritelength")+"		"+prepostcount+"	"+totalprepostcount+"	"+xpre+"	"+postprecount+"	"+totalpostprecount+"	"+xpost);
 		}
 		run("Close All"); 
-
+		print(name+"	"+precount+"	"+postcount+"	"+POIcount+"	"+prepostcount+"	"+postprecount+"	"+"dendritelength	"+precount+"/length	"+postcount+"/length	"+postprecount+"/length	"+prepostcount+"/length		"+prepostcount+"	"+totalprepostcount+"	"+xpre+"	"+postprecount+"	"+totalpostprecount+"	"+xpost);
 		//resultdir+folderlist[f] is the name of the condition
 		temptitle = File.getName(resultdir+folderlist[f]);
 	}
-}
 
 //This takes the arrays and puts them into the string - they were arrays
 //because the method in which the ROI quant is collected only permits one measurement at a time
 //and swapping back and forth between images and measuring the image individually between
 //each single puncta seems less straightforward than just making it an array
 
-UMcountprepostprepre = UMcountprepostprepre + pre+"ROI/"+post+"Img								"+ pre+"ROI/"+ pre+"Img\n";
+UMcountprepostprepre = UMcountprepostprepre +"							"+ pre+"ROI/"+post+"Img								"+ pre+"ROI/"+ pre+"Img\n";
 for(k=0;k<prepostArray.length;k++)	{
-	UMcountprepostprepre = UMcountprepostprepre + prepostArray[k] +postpre[k];
+	UMcountprepostprepre = UMcountprepostprepre + prepostArray[k] +prepreArray[k];
 }
-UMcountpostprepostpost = UMcountpostprepostpost +post+"ROI/"+pre+"Img								"+ post+"ROI/"+ post+"Img\n";
+
+UMcountpostprepostpost = UMcountpostprepostpost+"							"+ post+"ROI/"+pre+"Img								"+ post+"ROI/"+ post+"Img\n";
 for(k=0;k<postpreArray.length;k++)	{
 	UMcountpostprepostpost = UMcountpostprepostpost + postpreArray[k] +postpostArray[k];
 }
-UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI + pre+"ROI/"+POI+"Img								"+post+"ROI/"+POI+"Img								"+POI+"ROI/"+POI+"Img"+" \n";
-for(k=0;k<postpreArray.length;k++)	{
+
+UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI+"							"+ pre+"ROI/"+POI+"Img								"+post+"ROI/"+POI+"Img								"+POI+"ROI/"+POI+"Img"+" \n";
+for(k=0;k<POIpreArray.length;k++)	{
 	UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI + POIpreArray[k] +POIpostArray[k]+ POIPOIArray[k];
+}
+
+UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI+"							"+ pre+"ROI/"+POI+"Img								"+post+"ROI/"+POI+"Img								"+POI+"ROI/"+POI+"Img"+" \n";
+for(k=0;k<prepostPOIArray.length;k++)	{
+	UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI + prepostPOIArray[k] +postprePOIArray[k];
 }
 
 
@@ -294,14 +364,14 @@ selectWindow("ROI Manager");
 run("Close");
 File.saveString(UMcountprepostprepre,resultdir+"rawPrePostintensity.xls");
 File.saveString(UMcountpostprepostpost,resultdir+"rawPostPreintensity.xls");
-File.saveString(UUMcountprePOIpostPOIPOIPOI,resultdir+"rawPostPreintensity.xls");
+File.saveString(UMcountprePOIpostPOIPOIPOI,resultdir+"rawprepostPOIintensity.xls");
+File.saveString(UMcountprePOIpostPOIPOIPOI,resultdir+"rawprepostPOItripleintensity.xls");
 
 //the following functions are listed in order of use in the macro
 
 //thresholding parameters are generally the only ones that need changing, but all can be modified
 function parameterinput()
 	{
-	colors = newArray("Green, Red, Blue");
 	Dialog.create("Parameter");
 		Dialog.addNumber("Green Threshold:", 30);
 		Dialog.addNumber("Red Threshold:", 30);
@@ -310,9 +380,9 @@ function parameterinput()
 		Dialog.addNumber("Pixel Scale (um/pixel):", 0.1705);
 		Dialog.addNumber("Min Puncta Size (pixel):", 1);
 		Dialog.addNumber("Max Puncta Size (pixel):", 60);
-		Dialog.addChoice("presynaptic\nchannel",colors[0]);
-		Dialog.addChoice("postsynaptic\nchannel",colors[1]);
-		Dialog.addChoice("associated protein\nof interest",colors[2]);
+		Dialog.addChoice("presynaptic nchannel",colors,colors[0]);
+		Dialog.addChoice("postsynaptic channel",colors,colors[1]);
+		Dialog.addChoice("associated protein of interest",colors,colors[2]);
 	Dialog.show();
 	greenThreshold = Dialog.getNumber();
 	redThreshold = Dialog.getNumber();
@@ -338,22 +408,22 @@ function initialize()
 	run("Split Channels");
 
 	selectImage(name+" (blue)"); 
-	rename("blue");
+	rename("Blue");
 	run("Duplicate...", " ");
-	selectImage("blue-1"); 
-	rename("blue-unmask");
+	selectImage("Blue-1"); 
+	rename("Blue-unmask");
 
 	selectImage(name+" (green)"); 
-	rename("green");
+	rename("Green");
 	run("Duplicate...", " ");
-	selectImage("green-1"); 
-	rename("green-unmask");
+	selectImage("Green-1"); 
+	rename("Green-unmask");
 
 	selectImage(name+" (red)"); 
-	rename("red");
+	rename("Red");
 	run("Duplicate...", " ");
-	selectImage("red-1"); 
-	rename("red-unmask");
+	selectImage("Red-1"); 
+	rename("Red-unmask");
  }
 
 //this function creates a mask for the selected color channel (green or red). 
@@ -388,13 +458,14 @@ function mask(channel)
 	selectImage(channel); close();
 	selectImage(channel+" Segmented"); close();
 
-	if( channel == "Green" )  {
+	//gets the # of puncta counted in each condition
+	if( channel == pre )  {
 		precount = roiManager("Count");
 		}
-	if( channel == "Red" )  {
+	if( channel == post )  {
 		postcount = roiManager("Count");
 		}
-	if( channel == "Blue" )  {
+	if( channel == POI )  {
 		POIcount = roiManager("Count");
 		}
   
