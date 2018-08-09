@@ -13,12 +13,12 @@ rawdir=getDirectory("Choose Raw Data Folder");
 resultdir=getDirectory("Choose Result Folder");
 
 //variable setup
-var greenThreshold, redThreshold, blueThreshold, areapercent, scale, minsize, maxsize, name, onecount, twocount, onetwocount, twoonecount, axonlength, axonflag;
-var onestring, twostring, threestring, resultlist, FolderCreate, foldername, twoonecount, onetwocount, totaltwoonecount, totalonetwocount;
-var UMcountpostprepostpost, UMcountprepostprepre, str, prepostRatio, postpostRatio, ratioTemp, prepostArray, postpreArray, prepreArray, postpostArray, colors;
+var greenThreshold, redThreshold, blueThreshold, areapercent, scale, minsize, maxsize, name, precount, postcount, prepostcount, postprecount, "axonlength", axonflag;
+var onestring, twostring, threestring, resultlist, FolderCreate, foldername, postprecount, prepostcount, totalpostprecount, totalprepostcount;
+var UMcountpostprepostpost, UMcountprepostprepre, str, prepostRatio, postpostRatio, ratioTemp, prepostArray, prepreArray, postpreArray, postpostArray, colors;
 var pre, post, POI, UMcountprePOIpostPOIPOIPOI ;
 
-//three thresholds - specify which channel is for "pre-", post-, and protein of interest
+//three thresholds - specify which channel is for "pre-", post-, and protein of interest (POI)
 //restrict the ROI of the "presynaptic" marker to the puncta associated with postsynaptic puncta
 //get the intensity of the presynaptic marker within the protein of interest ROI
 //and compare it to the overall intensity of the protein of interest within its own ROI?
@@ -33,6 +33,7 @@ print("Raw_Folder:	"+rawdir);
 print("Result_Folder:	"+resultdir);
 print("GreenThreshold	RedThreshold	BlueThreshold	AreaPercent(%)	PixelScale(um/pixel)	Min_Puncta_Size	Max_Puncta_Size");
 print(greenThreshold+"	"+redThreshold+"	"+blueThreshold+"	"+areapercent+"	"+scale+"	"+minsize+"	"+maxsize);
+//mod this portion to display the ratio of counted to total GR/RG puncta
 print(" 	GreenPuncta#	RedPuncta#	BluePuncta#	GR#	RG#	DendriteLength(um)	Density_G(#/um)	Density_R(#/um)	Density_GR(#/um)	Density_RG(#/um)		gr_%AreaAvg(counted)	gr_%AreaAvg(total)	gr_totalCounted	rg_%AreaAvg(counted)	rg_%AreaAvg(total)	rg_totalCounted");
 
 folderlist=getFileList(rawdir);
@@ -50,11 +51,11 @@ folderlist=getFileList(rawdir);
 
 //these arrays are for two channel associations
 prepostArray = newArray("");
-postpreArray = newArray("");
+prepreArray = newArray("");
+postpreArray = newArray(""); 
+postpostArray = newArray("");
 prePOIArray = newArray("");
 postPOIArray = newArray("");
-prepreArray = newArray(""); 
-postpostArray = newArray("");
 POIPOIArray = newArray("");
 
 //these arrays are for two channel associations dependent on a third
@@ -83,15 +84,15 @@ for(f=0;f<folderlist.length;f++)
 	print(folderlist[f]);
 
 	prepostArray = Array.concat(prepostArray,folderlist[f]+"\n");
-	postpreArray = Array.concat(postpreArray,"");
-	prepreArray = Array.concat(prepreArray,folderlist[f]+"\n");
+	prepreArray = Array.concat(prepreArray,"");
+	postpreArray = Array.concat(postpreArray,folderlist[f]+"\n");
 	postpostArray = Array.concat(postpostArray,"");
-	prePOIArray = 
-	postPOIArray = 
-	POIPOIArray = 
+	prePOIArray = Array.concat(prePOIArray,folderlist[f]+"\n");
+	postPOIArray = Array.concat(postPOIArray,"");
+	POIPOIArray = Array.concat(POIPOIArray,"");
 
-	prepostPOIArray = newArray("");
-	postprePOIArray = newArray("");
+	prepostPOIArray = Array.concat(prepostPOIArray,folderlist[f]+"\n");
+	postprePOIArray = Array.concat(postprePOIArray,"");
 
 	for(d=0;d<filelist.length;d++)
 		{
@@ -112,10 +113,10 @@ for(f=0;f<folderlist.length;f++)
 		//either using the green mask as the base image and checking for overlap of the red puncta or vice versa
 		//because the puncta sizes differ, this can be pretty variable between G and R
 		//upon checking by hand, at 25% overlap, the one that most closely aligns is GR
-		totalonetwocount = 0;
-		totaltwoonecount = 0;
-		twoonecount = 0;
-		onetwocount = 0;
+		totalprepostcount = 0;
+		totalpostprecount = 0;
+		postprecount = 0;
+		prepostcount = 0;
 
 		//maybe have the variables set up so that it cycles through a test of all three channels three times with 
 		//each different raw image? I don't want to have one condition less robust than the other two because
@@ -123,19 +124,19 @@ for(f=0;f<folderlist.length;f++)
 
 
 		roiManager("reset");
-		if( onecount > 0 ) {
+		if( precount > 0 ) {
  	 		roiManager("Open", resultdir+folderlist[f]+name+"_Green_ROI.zip");
 			}
 		selectImage("red mask");
 		run("Clear Results");
 		roiManager("Measure");
-		onetwocount=0;
+		prepostcount=0;
 		x = 0;
 		for(i=0;i<roiManager("Count");i++) {
-			totalonetwocount = totalonetwocount + getResult("%Area",i);
+			totalprepostcount = totalprepostcount + getResult("%Area",i);
 			if( getResult("%Area",i) >= areapercent ) {
-				onetwocount++;
-				onetwocount = onetwocount + getResult("%Area",i);
+				prepostcount++;
+				prepostcount = prepostcount + getResult("%Area",i);
 			}
 			x++;
 		}
@@ -157,7 +158,7 @@ for(f=0;f<folderlist.length;f++)
 		//roiManager("Select", 0);
 		for(i=0;i<roiManager("Count");i++) {
 			str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
-			postpreArray = Array.concat(postpreArray,str);
+			prepreArray = Array.concat(prepreArray,str);
 		}
 		selectImage("blue-unmask");
 		run("Clear Results");
@@ -168,26 +169,26 @@ for(f=0;f<folderlist.length;f++)
 			prepostArray = Array.concat(prepostArray,str);
 		}
 
-		xgreen = x;
-		totalonetwocount = totalonetwocount/x;
-		onetwocount = onetwocount/onetwocount;
+		xpre = x;
+		totalprepostcount = totalprepostcount/x;
+		prepostcount = prepostcount/prepostcount;
 
 		roiManager("reset"); 
 		run("Clear Results");
 		
-		if( twocount > 0 ) {
+		if( postcount > 0 ) {
  	 		roiManager("Open", resultdir+folderlist[f]+name+"_Red_ROI.zip");
 			}
 		selectImage("green mask");
 		run("Clear Results");
 		roiManager("Measure");
-		twoonecount=0;
+		postprecount=0;
 		x = 0;
 		for(i=0;i<roiManager("Count");i++) {
-			totaltwoonecount = totaltwoonecount + getResult("%Area",i);
+			totalpostprecount = totalpostprecount + getResult("%Area",i);
 			if(getResult("%Area",i) >= areapercent) {
-				twoonecount++;
-				twoonecount = twoonecount + getResult("%Area",i);
+				postprecount++;
+				postprecount = postprecount + getResult("%Area",i);
 			}
 			x++;
 		}
@@ -197,7 +198,7 @@ for(f=0;f<folderlist.length;f++)
 		for(i=0;i<roiManager("Count");i++) {
 			//then the red ROI
 			str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-			prepreArray = Array.concat(prepreArray,str);
+			postpreArray = Array.concat(postpreArray,str);
 		}
 		selectImage("red-unmask");
 		run("Clear Results");
@@ -213,9 +214,9 @@ for(f=0;f<folderlist.length;f++)
 			str = "		"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
 			postpostArray = Array.concat(postpostArray,str);
 		}
-		xred = x;
-		totaltwoonecount = (totaltwoonecount/x);
-		twoonecount = twoonecount/twoonecount;
+		xpost = x;
+		totalpostprecount = (totalpostprecount/x);
+		postprecount = postprecount/postprecount;
 
 		roiManager("reset"); 
 		run("Clear Results");
@@ -226,13 +227,13 @@ for(f=0;f<folderlist.length;f++)
 		selectImage("green mask");
 		run("Clear Results");
 		roiManager("Measure");
-		twoonecount=0;
+		postprecount=0;
 		x = 0;
 		for(i=0;i<roiManager("Count");i++) {
-			totaltwoonecount = totaltwoonecount + getResult("%Area",i);
+			totalpostprecount = totalpostprecount + getResult("%Area",i);
 			if(getResult("%Area",i) >= areapercent) {
-				twoonecount++;
-				twoonecount = twoonecount + getResult("%Area",i);
+				postprecount++;
+				postprecount = postprecount + getResult("%Area",i);
 			}
 			x++;
 		}
@@ -242,7 +243,7 @@ for(f=0;f<folderlist.length;f++)
 		for(i=0;i<roiManager("Count");i++) {
 			//then the red ROI
 			str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-			prepreArray = Array.concat(prepreArray,str);
+			postpreArray = Array.concat(postpreArray,str);
 		}
 		selectImage("red-unmask");
 		run("Clear Results");
@@ -258,14 +259,14 @@ for(f=0;f<folderlist.length;f++)
 			str = "		"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
 			POIPOIArray = Array.concat(POIPOIArray,str);
 		}
-		xred = x;
-		totaltwoonecount = (totaltwoonecount/x);
-		twoonecount = twoonecount/twoonecount;
+		xpost = x;
+		totalpostprecount = (totalpostprecount/x);
+		postprecount = postprecount/postprecount;
 
 		roiManager("reset"); 
 		run("Clear Results");
 		//prints this + variable strings produced from the other functions to the log to be saved
-		print(name+"	"+onecount+"	"+twocount+"	"+onetwocount+"	"+twoonecount+"	"+axonlength+"	"+(onecount/axonlength)+"	"+(twocount/axonlength)+"	"+(twoonecount/axonlength)+"	"+(onetwocount/axonlength)+"		"+onetwocount+"	"+totalonetwocount+"	"+xgreen+"	"+twoonecount+"	"+totaltwoonecount+"	"+xred);
+		print(name+"	"+precount+"("+pre+")"+"	"+postcount+"("+post+")"+"	"+prepostcount+"	"+postprecount+"	"+"axonlength"+"	"+(precount+"/axonlength")+"	"+(postcount+"/axonlength")+"	"+(postprecount+"/axonlength")+"	"+(prepostcount+"/axonlength")+"		"+prepostcount+"	"+totalprepostcount+"	"+xpre+"	"+postprecount+"	"+totalpostprecount+"	"+xpost);
 
 		run("Close All"); 
 
@@ -288,8 +289,8 @@ for(k=0;k<prepostArray.length;k++)	{
 	UMcountprepostprepre = UMcountprepostprepre + prepostArray[k] +postpre[k];
 }
 UMcountpostprepostpost = UMcountpostprepostpost + "redROI/greenImg								redROI/redImg\n";
-for(k=0;k<prepreArray.length;k++)	{
-	UMcountpostprepostpost = UMcountpostprepostpost + prepreArray[k] +postpostArray[k];
+for(k=0;k<postpreArray.length;k++)	{
+	UMcountpostprepostpost = UMcountpostprepostpost + postpreArray[k] +postpostArray[k];
 }
 
 //these take the strings and the log and save them as tab separated excel sheets
@@ -416,10 +417,10 @@ function mask(channel)
 	selectImage(channel+" Segmented"); close();
 
 	if( channel == "green" )  {
-		onecount = roiManager("Count");
+		precount = roiManager("Count");
 		}
 	if( channel == "red" )  {
-		twocount = roiManager("Count");
+		postcount = roiManager("Count");
 		}
   
 	if( roiManager("Count") > 0 )
