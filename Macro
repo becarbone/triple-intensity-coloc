@@ -37,7 +37,7 @@ print("Result_Folder:	"+resultdir);
 print("GreenThreshold	RedThreshold	BlueThreshold	AreaPercent(%)	PixelScale(um/pixel)	Min_Puncta_Size	Max_Puncta_Size");
 print(greenThreshold+"	"+redThreshold+"	"+blueThreshold+"	"+areapercent+"	"+scale+"	"+minsize+"	"+maxsize);
 //mod this portion to display the ratio of counted to total GR/RG puncta
-print(" 	"+pre+"Puncta#	"+post+"Puncta#	"+POI+"Puncta#	"+pre+post+"#	"+post+pre+"#	DendriteLength(um)	Density_G(#/um)	Density_R(#/um)	Density_GR(#/um)	Density_RG(#/um)		gr_%AreaAvg(counted)	gr_%AreaAvg(total)	gr_totalCounted	rg_%AreaAvg(counted)	rg_%AreaAvg(total)	rg_totalCounted");
+print(" 	"+pre+"Puncta#	"+post+"Puncta#	"+POI+"Puncta#	"+pre+post+"#	"+post+pre+"#	"+pre+POI+"#	"+post+POI+"#	"+POI+pre+"#	"+POI+post+"#	DendriteLength(um)	Density_"+pre+"(#/um)	Density_"+post+"(#/um)	Density_"+POI+"(#/um)	Density_"+pre+post+"(#/um)	Density_"+post+pre+"(#/um)	Density_"+pre+POI+"(#/um)	Density_"+post+POI+"(#/um)	Density_"+POI+pre+"(#/um)	Density_"+POI+post+"(#/um)		"+pre+post+"_totalCounted	"+post+pre+"_totalCounted	"+pre+POI+"_totalCounted	"+post+POI+"_totalCounted	"+POI+pre+"_totalCounted	"+POI+post+"_totalCounted");
 // add 
 folderlist=getFileList(rawdir);
 
@@ -71,8 +71,8 @@ postprePOIArray = newArray("");
 
 UMcountprepostprepre = " Filename	#	AreaOf"+pre+"ROI		PrePost%Overlap	PrePostmeanGrey	PrePostint_density(um)	PrePostraw_int_den(pix)		PrePre%Overlap	PrePremeanGrey	PrePreint_density(um)	PrePreraw_int_den(pix)\n";
 UMcountpostprepostpost = "Filename	#	AreaOf"+post+"ROI		PostPre%Overlap	PostPremeanGrey	PostPreint_density(um)	PostPreraw_int_den(pix)		PostPost%Overlap	PostPostmeanGrey	PostPostint_density(um)	PostPostraw_int_den(pix)\n";
-UMcountprePOIpostPOIPOIPOI = "Filename	#	AreaOf"+pre+"ROI		PrePOI%Overlap	PrePOImeanGrey	PrePOIint_density(um)	PrePOIraw_int_den(pix)		AreaOf"+post+"ROI	PostPOI%Overlap	PostPOImeanGrey	PostPOIint_density(um)	PostPOIraw_int_den(pix)			AreaOf"+POI+"ROI	POIPOI%Overlap	POIPOImeanGrey	POIPOIint_density(um)	POIPOIraw_int_den(pix)\n";
-UMcounttriple = "Filename	#	AreaOf"+pre+post+"assocROI		PrePostPOIPOI%Overlap	PrePostPOIPOImeanGrey	PrePostPOIPOIint_density(um)	PrePostPOIraw_int_den(pix)		PostPrePOI%Overlap	PostPrePOImeanGrey	PostPrePOIint_density(um)	PostPrePOIraw_int_den(pix)\n";
+UMcountprePOIpostPOIPOIPOI = "Filename	#	AreaOf"+pre+"ROI		PrePOI%Overlap	PrePOImeanGrey	PrePOIint_density(um)	PrePOIraw_int_den(pix)		AreaOf"+post+"ROI	PostPOI%Overlap	PostPOImeanGrey	PostPOIint_density(um)	PostPOIraw_int_den(pix)		AreaOf"+POI+"ROI	POIPOI%Overlap	POIPOImeanGrey	POIPOIint_density(um)	POIPOIraw_int_den(pix)\n";
+UMcounttriple = "Filename	#	AreaOf"+pre+post+"assocROI		PrePostPOIPOI%Overlap	PrePostPOIPOImeanGrey	PrePostPOIPOIint_density(um)	PrePostPOIraw_int_den(pix)		AreaOf"+post+pre+"assocROI	PostPrePOI%Overlap	PostPrePOImeanGrey	PostPrePOIint_density(um)	PostPrePOIraw_int_den(pix)\n";
 
 //"foldercreate" is for generation of result folders - at the time of making this, it didn't allow for autoselection
 //of the result folder with the code. Might be worth going back thru to see if it can be done a diff
@@ -114,10 +114,14 @@ for(f=0;f<folderlist.length;f++) {
 		totalpostprecount = 0;
 		totalprePOIcount = 0;
 		totalpostPOIcount = 0;
+		totalPOIprecount = 0;
+		totalPOIpostcount = 0;
 		prepostcount = 0;
 		postprecount = 0;
 		prePOIcount = 0;
 		postPOIcount = 0;
+		POIprecount = 0;
+		POIpostcount = 0;
 
 		//measure
 		
@@ -132,70 +136,73 @@ for(f=0;f<folderlist.length;f++) {
 	  		selectImage(post+" mask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
-	  		mscountx=0;
+	  		counted=0;
 	  		x = 0;
 	  		for(i=0;i<roiManager("Count");i++) {
 	  			totalprepostcount = totalprepostcount + getResult("%Area",i);
 	  			if(getResult("%Area",i) >= areapercent) {
-	  				mscountx++;
-	  				prepostcount = prepostcount + getResult("%Area",i);
+	  				counted++;
 	  			}
 	  			x++;	
 	  		}
-	  		xpre = x;
-	  		totalprepostcount = totalprepostcount/x;
-	  		prepostcount = prepostcount/mscountx;
-	  		  		selectImage(pre+"-unmask");
+	  		totalprepostcount = x;
+	  		prepostcount = counted;
+	  		selectImage(pre+" mask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
-	  		mscountx=0;
+	  		counted=0;
 	  		x = 0;
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			totalpreprecount = totalpreprecount + getResult("%Area",i);
 	  			if(getResult("%Area",i) >= areapercent) {
-	  				mscountx++;
-	  				preprecount = preprecount + getResult("%Area",i);
+	  				counted++;
 	  			}
 	  			x++;	
 	  		}
-	  		totalpreprecount = totalpreprecount/x;
-	  		preprecount = preprecount/mscountx;
-	  		  		selectImage(POI+" mask");
+	  		totalpreprecount = x;
+	  		preprecount = counted;
+
+	  		selectImage(POI+" mask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
-	  		mscountx=0;
+	  		counted=0;
 	  		x = 0;
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			totalprePOIcount = totalprePOIcount + getResult("%Area",i);
 	  			if(getResult("%Area",i) >= areapercent) {
-	  				mscountx++;
-	  				prePOIcount = prePOIcount + getResult("%Area",i);
+	  				counted++;
 	  			}
 	  			x++;	
 	  		}
-	  		totalprePOIcount = totalprePOIcount/x;
-	  		prePOIcount = prePOIcount/mscountx;
-	  		  		selectImage(post+"-unmask");
+	  		totalprePOIcount = x;
+	  		prePOIcount = counted;
+
+
+	  		selectImage(post+"-unmask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			//this str just stores the values from the ROI measure function to be put into the appropriate array for the green ROI
-	  			str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-	  			prepostArray = Array.concat(prepostArray,str);
+	  			if(getResult("Area",i)&getResult("%Area",i)>0){
+	 	  			//this str just stores the values from the ROI measure function to be put into the appropriate array for the green ROI
+	 	  			str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
+	 	  			prepostArray = Array.concat(prepostArray,str);
+	 	 		}
 	  		}
-	  		  		selectImage(pre+"-unmask");
+	  		selectImage(pre+"-unmask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
-	  			prepreArray = Array.concat(prepreArray,str);
+	  			if(getResult("Area",i)&getResult("%Area",i)>0){
+	  				str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
+	  				prepreArray = Array.concat(prepreArray,str);
+	  			}
 	  		}
-	  		  		selectImage(POI+"-unmask");
+	  		selectImage(POI+"-unmask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			str = "	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-	  			prePOIArray = Array.concat(prePOIArray,str);
+	  			if(getResult("Area",i)&getResult("%Area",i)>0){
+	  				str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
+	  				prePOIArray = Array.concat(prePOIArray,str);
+	  			}
 	  		}
 	  	}
 		else{
@@ -217,75 +224,74 @@ for(f=0;f<folderlist.length;f++) {
 			selectImage(pre+" mask");
 			run("Clear Results");
 			roiManager("Measure");
-			mscountx=0;
+			counted=0;
 			x = 0;
 			for(i=0;i<roiManager("Count");i++) {
-				totalpostprecount = totalpostprecount + getResult("%Area",i);
 				if(getResult("%Area",i) >= areapercent) {
-					mscountx++;
-					postprecount = postprecount + getResult("%Area",i);
+					counted++;
 				}
 				x++;	
 			}
-			xpre = x;
-			totalpostprecount = totalpostprecount/x;
-			postprecount = postprecount/mscountx;
+			totalpostprecount = x;
+			postprecount = counted;
 	
-			selectImage(post+"-unmask");
+			selectImage(post+" mask");
 			run("Clear Results");
 			roiManager("Measure");
-			mscountx=0;
+			counted=0;
 			x = 0;
 			for(i=0;i<roiManager("Count");i++) {
-				totalpostpostcount = totalpostpostcount + getResult("%Area",i);
 				if(getResult("%Area",i) >= areapercent) {
-					mscountx++;
-					postpostcount = postpostcount + getResult("%Area",i);
+					counted++;
 				}
 				x++;	
 			}
-			totalpostpostcount = totalpostpostcount/x;
-			postpostcount = postpostcount/mscountx;
+			totalpostpostcount = x;
+			postpostcount = counted;
 	
 			selectImage(POI+" mask");
 			run("Clear Results");
 			roiManager("Measure");
-			mscountx=0;
+			counted=0;
 			x = 0;
 			for(i=0;i<roiManager("Count");i++) {
-				totalpostPOIcount = totalpostPOIcount + getResult("%Area",i);
 				if(getResult("%Area",i) >= areapercent) {
-					mscountx++;
-					postPOIcount = postPOIcount + getResult("%Area",i);
+					counted++;
 				}
 				x++;
 			}
-			totalpostPOIcount = totalpostPOIcount/x;
-			postPOIcount = postPOIcount/mscountx;
+			totalpostPOIcount = x;
+			postPOIcount = counted;
 	
 			selectImage(pre+"-unmask");
 			run("Clear Results");
 			roiManager("Measure");
 			for(i=0;i<roiManager("Count");i++) {
-				//this str just stores the values from the ROI measure function to be put into the appropriate array for the green ROI
-				str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-				postpreArray = Array.concat(postpreArray,str);
+				if(getResult("Area",i)&getResult("%Area",i)>0)	{
+					//this str just stores the values from the ROI measure function to be put into the appropriate array for the green ROI
+					str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
+					postpreArray = Array.concat(postpreArray,str);
+				}
 			}
 	
 			selectImage(post+"-unmask");
 			run("Clear Results");
 			roiManager("Measure");
 			for(i=0;i<roiManager("Count");i++) {
-				str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-				postpostArray = Array.concat(postpostArray,str);
+				if(getResult("Area",i)&getResult("%Area",i)>0)	{
+					str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
+					postpostArray = Array.concat(postpostArray,str);
+				}
 			}
 	
 			selectImage(POI+"-unmask");
 			run("Clear Results");
 			roiManager("Measure");
 			for(i=0;i<roiManager("Count");i++) {
-				str = "	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-				postPOIArray = Array.concat(postPOIArray,str);
+				if(getResult("Area",i)&getResult("%Area",i)>0)	{
+					str = "		"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
+					postPOIArray = Array.concat(postPOIArray,str);
+				}
 			}
 		}
 		else{
@@ -303,28 +309,57 @@ for(f=0;f<folderlist.length;f++) {
 		roiManager("reset");
 	  	if(File.exists(resultdir+folderlist[f]+name+"_"+POI+"_ROI.zip") ==1)	{
 	  		roiManager("Open", resultdir+folderlist[f]+name+"_"+POI+"_ROI.zip");
+  			
+	  		selectImage(pre+" mask");
+			run("Clear Results");
+			roiManager("Measure");
+			counted=0;
+			x = 0;
+			for(i=0;i<roiManager("Count");i++) {
+				if(getResult("%Area",i) >= areapercent) {
+					counted++;
+				}
+				x++;	
+			}
+			totalPOIprecount = x;
+			POIprecount = counted;
+	
+			selectImage(post+" mask");
+			run("Clear Results");
+			roiManager("Measure");
+			counted=0;
+			x = 0;
+			for(i=0;i<roiManager("Count");i++) {
+				if(getResult("%Area",i) >= areapercent) {
+					counted++;
+				}
+				x++;	
+			}
+			totalPOIpostcount = x;
+			POIpostcount = counted;
+
   			selectImage(POI+" mask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
-	  		mscountx=0;
+	  		counted=0;
 	  		x = 0;
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			totalPOIPOIcount = totalPOIPOIcount + getResult("%Area",i);
 	  			if(getResult("%Area",i) >= areapercent) {
-	  				mscountx++;
-	  				POIPOIcount = POIPOIcount + getResult("%Area",i);
+	  				counted++;
 	  			}
 	  			x++;	
 	  		}
-	  		totalPOIPOIcount = totalPOIPOIcount/x;
-	  		POIPOIcount = POIPOIcount/mscountx;
+	  		totalPOIPOIcount = x;
+	  		POIPOIcount = counted;
 	  	
   			selectImage(POI+"-unmask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			str = "	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
-	  			POIPOIArray = Array.concat(POIPOIArray,str);
+	  			if(getResult("Area",i)&getResult("%Area",i)>0)	{
+	  				str = "		"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
+	  				POIPOIArray = Array.concat(POIPOIArray,str);
+	  			}
 	  		}
 	  	}
 	  	else{
@@ -354,7 +389,7 @@ for(f=0;f<folderlist.length;f++) {
 	  		for(j=0;j<countArray.length;j++)	{
 	  			roiManager("Select", countArray[j]);
 	  			roiManager("Measure");
-	  			str = filelist[d]+"	"+j+1+"	"+getResult("Area",j)+"		"+getResult("%Area",j)+"	"+ getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j);
+	  			str = filelist[d]+"	"+countArray[j]+1+"	"+getResult("Area",j)+"		"+getResult("%Area",j)+"	"+ getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j);
 	  			prepostPOIArray = Array.concat(prepostPOIArray,str);
 	  		}
 	  	}
@@ -378,26 +413,31 @@ for(f=0;f<folderlist.length;f++) {
 			for(j=0;j<countArray.length;j++)	{
 				roiManager("Select", countArray[j]);
 				roiManager("Measure");
-				str = filelist[d]+"	"+j+1+"	"+getResult("Area",j)+"		"+getResult("%Area",j)+"	"+ getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j)+"\n";
+				str = "		"+getResult("Area",j)+"	"+getResult("%Area",j)+"	"+ getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j)+"\n";
 				postprePOIArray = Array.concat(postprePOIArray,str);
 			}
 		}
 
 		run("Close All"); 
-		print(name+"	"+precount+"	"+postcount+"	"+POIcount+"	"+prepostcount+"	"+postprecount+"	"+"dendritelength	"+precount+"/length	"+postcount+"/length	"+postprecount+"/length	"+prepostcount+"/length		"+prepostcount+"	"+totalprepostcount+"	"+xpre+"	"+postprecount+"	"+totalpostprecount+"	"+xpost);
+		print(name+"	"+precount+"	"+postcount+"	"+POIcount+"	"+prepostcount+"	"+postprecount+"	"+prePOIcount+"	"+postPOIcount+"	"+POIprecount+"	"+POIpostcount+"	ROIlength	"+precount+"/length	"+postcount+"/length	"+prepostcount+"/length	"+postprecount+"/length		"+prePOIcount+"/length	"+postPOIcount+"/length	"+POIprecount+"/length	"+POIpostcount+"/length		"+totalprepostcount+"	"+totalpostprecount+"	"+totalprePOIcount+"	"+totalpostPOIcount+"	"+totalPOIprecount+"	"+totalPOIpostcount);
 		//resultdir+folderlist[f] is the name of the condition
 		temptitle = File.getName(resultdir+folderlist[f]);
 	}
 }
 
-//This takes the arrays and puts them into the string - they were arrays
-//because the method in which the ROI quant is collected only permits one measurement at a time
-//and swapping back and forth between images and measuring the image individually between
-//each single puncta seems less straightforward than just making it an array
-
 //correcting the length on the differentially sized arrays so they can be displayed properly on the
 //the excel sheet and don't break the macro
 
+//these take the strings and the log and save them as tab separated excel sheets
+
+selectWindow("Log");
+saveAs("Text", resultdir+"Summary.xls");
+selectWindow("Log"); 
+run("Close");
+selectWindow("Results"); 
+run("Close");
+selectWindow("ROI Manager"); 
+run("Close");
 
 UMcountprepostprepre = UMcountprepostprepre +"				"+ pre+"ROI/"+post+"Img					"+ pre+"ROI/"+ pre+"Img\n";
 for(k=0;k<prepostArray.length;k++)	{
@@ -409,56 +449,48 @@ for(k=0;k<postpreArray.length;k++)	{
 	UMcountpostprepostpost = UMcountpostprepostpost + postpreArray[k] +postpostArray[k];
 }
 
-UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI+"				"+ pre+"ROI/"+POI+"Img					"+post+"ROI/"+POI+"Img					"+POI+"ROI/"+POI+"Img"+" \n";
+UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI+"				"+ pre+"ROI/"+POI+"Img					"+post+"ROI/"+POI+"Img						"+POI+"ROI/"+POI+"Img"+" \n";
 for(k=0;k<prePOIArray.length;k++)	{
-	if(prePOIArray[k]>0){
+	if(prePOIArray.length>k){
 		prePOI = prePOIArray[k];
 	}
 	else{
 		prePOI = "";
 	}
-	if(postPOIArray[k]>0){
+	if(postPOIArray.length>k){
 		postPOI = postPOIArray[k];
 	}
 	else{
 		postPOI = "";
 	}
-	if(POIPOIArray[k]>0){
+	if(POIPOIArray.length>k){
 		POIPOI = POIPOIArray[k];
 	}
 	else{
-		POIPOI = "";
+		POIPOI = "\n";
 	}
-	UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI + prePOI+postPOI+ POIPOI;
+	UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI + prePOI+postPOI+POIPOI;
 }
 
 UMcounttriple = UMcounttriple+"				"+ pre+post+"ROI/"+POI+"Img					"+pre+post+"ROI/"+POI+"Img\n";
 for(k=0;k<prepostPOIArray.length;k++)	{
-	if(prepostPOIArray[k]>0){
+	if(prepostPOIArray.length>k){
 		prepostPOI = prepostPOIArray[k];
 	}
 	else{
 		prepostPOI = "";
 	}
-	if(postprePOIArray[k]>0){
+	if(postprePOIArray.length>k){
 		postprePOI = postprePOIArray[k];
 	}
 	else{
-		postprePOI = "";
+		postprePOI = "\n";
 	}
 	UMcounttriple = UMcounttriple + prepostPOI +postprePOI;
 }
 
 
-//these take the strings and the log and save them as tab separated excel sheets
-selectWindow("Log");
-saveAs("Text", resultdir+"Summary.xls");
-selectWindow("Log"); 
-run("Close");
-selectWindow("Results"); 
-run("Close");
-selectWindow("ROI Manager"); 
-run("Close");
+
 File.saveString(UMcountprepostprepre,resultdir+"rawPrePostintensity.xls");
 File.saveString(UMcountpostprepostpost,resultdir+"rawPostPreintensity.xls");
 File.saveString(UMcountprePOIpostPOIPOIPOI,resultdir+"rawprepostPOIintensity.xls");
