@@ -72,7 +72,7 @@ postprePOIArray = newArray("");
 UMcountprepostprepre = " Filename	#	AreaOf"+pre+"ROI		PrePost%Overlap	PrePostmeanGrey	PrePostint_density(um)	PrePostraw_int_den(pix)		PrePre%Overlap	PrePremeanGrey	PrePreint_density(um)	PrePreraw_int_den(pix)\n";
 UMcountpostprepostpost = "Filename	#	AreaOf"+post+"ROI		PostPre%Overlap	PostPremeanGrey	PostPreint_density(um)	PostPreraw_int_den(pix)		PostPost%Overlap	PostPostmeanGrey	PostPostint_density(um)	PostPostraw_int_den(pix)\n";
 UMcountprePOIpostPOIPOIPOI = "Filename	#	AreaOf"+pre+"ROI		PrePOI%Overlap	PrePOImeanGrey	PrePOIint_density(um)	PrePOIraw_int_den(pix)		AreaOf"+post+"ROI	PostPOI%Overlap	PostPOImeanGrey	PostPOIint_density(um)	PostPOIraw_int_den(pix)		AreaOf"+POI+"ROI	POIPOI%Overlap	POIPOImeanGrey	POIPOIint_density(um)	POIPOIraw_int_den(pix)\n";
-UMcounttriple = "Filename	#	AreaOf"+pre+post+"assocROI		PrePostPOIPOI%Overlap	PrePostPOIPOImeanGrey	PrePostPOIPOIint_density(um)	PrePostPOIraw_int_den(pix)		AreaOf"+post+pre+"assocROI	PostPrePOI%Overlap	PostPrePOImeanGrey	PostPrePOIint_density(um)	PostPrePOIraw_int_den(pix)\n";
+UMcounttriple = "Filename	#	AreaOf"+pre+post+"assocROI		PrePostPOIPOI%Overlap	PrePostPOIPOImeanGrey	PrePostPOIPOIint_density(um)	PrePostPOIraw_int_den(pix)		#	AreaOf"+post+pre+"assocROI	PostPrePOI%Overlap	PostPrePOImeanGrey	PostPrePOIint_density(um)	PostPrePOIraw_int_den(pix)\n";
 
 //"foldercreate" is for generation of result folders - at the time of making this, it didn't allow for autoselection
 //of the result folder with the code. Might be worth going back thru to see if it can be done a diff
@@ -180,28 +180,34 @@ for(f=0;f<folderlist.length;f++) {
 	  		run("Clear Results");
 	  		roiManager("Measure");
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			if(getResult("Area",i)&getResult("%Area",i)>0){
-	 	  			//this str just stores the values from the ROI measure function to be put into the appropriate array for the green ROI
-	 	  			str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-	 	  			prepostArray = Array.concat(prepostArray,str);
+	  			if(getResult("Area",i)>0){
+	  				if(getResult("%Area",i)>0)	{
+		 	  			//this str just stores the values from the ROI measure function to be put into the appropriate array for the green ROI
+	 		  			str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
+	 	  				prepostArray = Array.concat(prepostArray,str);
+	 	 			}
 	 	 		}
 	  		}
 	  		selectImage(pre+"-unmask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			if(getResult("Area",i)&getResult("%Area",i)>0){
-	  				str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
-	  				prepreArray = Array.concat(prepreArray,str);
+	  			if(getResult("Area",i)>0){
+	  				if(getResult("%Area",i)>0)	{
+		  				str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
+		  				prepreArray = Array.concat(prepreArray,str);
+	  				}
 	  			}
 	  		}
 	  		selectImage(POI+"-unmask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			if(getResult("Area",i)&getResult("%Area",i)>0){
-	  				str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-	  				prePOIArray = Array.concat(prePOIArray,str);
+	  			if(getResult("Area",i)>0){
+	  				if(getResult("%Area",i)>0)	{
+		  				str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
+		  				prePOIArray = Array.concat(prePOIArray,str);
+	  				}
 	  			}
 	  		}
 	  	}
@@ -267,10 +273,12 @@ for(f=0;f<folderlist.length;f++) {
 			run("Clear Results");
 			roiManager("Measure");
 			for(i=0;i<roiManager("Count");i++) {
-				if(getResult("Area",i)&getResult("%Area",i)>0)	{
-					//this str just stores the values from the ROI measure function to be put into the appropriate array for the green ROI
-					str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-					postpreArray = Array.concat(postpreArray,str);
+				if(getResult("Area",i)>0)	{
+					if(getResult("%Area",i)>0)	{
+						//this str just stores the values from the ROI measure function to be put into the appropriate array for the green ROI
+						str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
+						postpreArray = Array.concat(postpreArray,str);
+					}
 				}
 			}
 	
@@ -278,9 +286,11 @@ for(f=0;f<folderlist.length;f++) {
 			run("Clear Results");
 			roiManager("Measure");
 			for(i=0;i<roiManager("Count");i++) {
-				if(getResult("Area",i)&getResult("%Area",i)>0)	{
-					str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
-					postpostArray = Array.concat(postpostArray,str);
+				if(getResult("Area",i)>0)	{
+					if(getResult("%Area",i)>0)	{
+						str = "		"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
+						postpostArray = Array.concat(postpostArray,str);
+					}
 				}
 			}
 	
@@ -288,9 +298,11 @@ for(f=0;f<folderlist.length;f++) {
 			run("Clear Results");
 			roiManager("Measure");
 			for(i=0;i<roiManager("Count");i++) {
-				if(getResult("Area",i)&getResult("%Area",i)>0)	{
-					str = "		"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
-					postPOIArray = Array.concat(postPOIArray,str);
+				if(getResult("Area",i)>0)	{
+					if(getResult("%Area",i)>0)	{
+						str = "		"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
+						postPOIArray = Array.concat(postPOIArray,str);
+					}
 				}
 			}
 		}
@@ -356,9 +368,11 @@ for(f=0;f<folderlist.length;f++) {
 	  		run("Clear Results");
 	  		roiManager("Measure");
 	  		for(i=0;i<roiManager("Count");i++) {
-	  			if(getResult("Area",i)&getResult("%Area",i)>0)	{
-	  				str = "		"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
-	  				POIPOIArray = Array.concat(POIPOIArray,str);
+	  			if(getResult("Area",i)>0)	{
+	  				if(getResult("%Area",i)>0)	{
+	  					str = "		"+getResult("Area",i)+"	"+getResult("%Area",i)+"	"+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
+	  					POIPOIArray = Array.concat(POIPOIArray,str);
+	  				}
 	  			}
 	  		}
 	  	}
@@ -413,13 +427,13 @@ for(f=0;f<folderlist.length;f++) {
 			for(j=0;j<countArray.length;j++)	{
 				roiManager("Select", countArray[j]);
 				roiManager("Measure");
-				str = "		"+getResult("Area",j)+"	"+getResult("%Area",j)+"	"+ getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j)+"\n";
+				str = "		"+countArray[j]+1+"		"+getResult("Area",j)+"	"+getResult("%Area",j)+"	"+ getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j)+"\n";
 				postprePOIArray = Array.concat(postprePOIArray,str);
 			}
 		}
 
 		run("Close All"); 
-		print(name+"	"+precount+"	"+postcount+"	"+POIcount+"	"+prepostcount+"	"+postprecount+"	"+prePOIcount+"	"+postPOIcount+"	"+POIprecount+"	"+POIpostcount+"	ROIlength	"+precount+"/length	"+postcount+"/length	"+prepostcount+"/length	"+postprecount+"/length		"+prePOIcount+"/length	"+postPOIcount+"/length	"+POIprecount+"/length	"+POIpostcount+"/length		"+totalprepostcount+"	"+totalpostprecount+"	"+totalprePOIcount+"	"+totalpostPOIcount+"	"+totalPOIprecount+"	"+totalPOIpostcount);
+		print(name+"	"+precount+"	"+postcount+"	"+POIcount+"	"+prepostcount+"	"+postprecount+"	"+prePOIcount+"	"+postPOIcount+"	"+POIprecount+"	"+POIpostcount+"	ROIlength	"+precount+"/length	"+postcount+"/length	"+prepostcount+"/length	"+postprecount+"/length	"+prePOIcount+"/length	"+postPOIcount+"/length	"+POIprecount+"/length	"+POIpostcount+"/length		"+totalprepostcount+"	"+totalpostprecount+"	"+totalprePOIcount+"	"+totalpostPOIcount+"	"+totalPOIprecount+"	"+totalPOIpostcount);
 		//resultdir+folderlist[f] is the name of the condition
 		temptitle = File.getName(resultdir+folderlist[f]);
 	}
