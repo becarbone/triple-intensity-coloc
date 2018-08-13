@@ -102,11 +102,11 @@ for(f=0;f<folderlist.length;f++) {
 	postpreArray = Array.concat(postpreArray,folderlist[f]+"\n");
 	postpostArray = Array.concat(postpostArray,"");
 	prePOIArray = Array.concat(prePOIArray,folderlist[f]+"\n");
-	postPOIArray = Array.concat(postPOIArray,"");
-	POIPOIArray = Array.concat(POIPOIArray,"");
+	postPOIArray = Array.concat(postPOIArray,folderlist[f]+"\n");
+	POIPOIArray = Array.concat(POIPOIArray,folderlist[f]+"\n");
 
 	prepostPOIArray = Array.concat(prepostPOIArray,folderlist[f]+"\n");
-	postprePOIArray = Array.concat(postprePOIArray,"");
+	postprePOIArray = Array.concat(postprePOIArray,folderlist[f]+"\n");
 	tripleColocStr = tripleColocStr+folderlist[f]+"\n";
 
 	for(d=0;d<filelist.length;d++) {
@@ -191,7 +191,6 @@ for(f=0;f<folderlist.length;f++) {
 	  		totalprePOIcount = x;
 	  		prePOIcount = counted;
 
-
 	  		selectImage(post+"-unmask");
 	  		run("Clear Results");
 	  		roiManager("Measure");
@@ -202,6 +201,9 @@ for(f=0;f<folderlist.length;f++) {
 	 		  			str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
 	 	  				prepostArray = Array.concat(prepostArray,str);
 	 	 			}
+	 	 		}
+	 	 		else {
+	 	 			prepostArray = Array.concat(prepostArray,"\n");
 	 	 		}
 	  		}
 	  		selectImage(pre+"-unmask");
@@ -214,6 +216,9 @@ for(f=0;f<folderlist.length;f++) {
 		  				prepreArray = Array.concat(prepreArray,str);
 	  				}
 	  			}
+	  			else {
+		  			prepreArray = Array.concat(prepreArray,"\n");
+	  			}
 	  		}
 	  		selectImage(POI+"-unmask");
 	  		run("Clear Results");
@@ -224,6 +229,9 @@ for(f=0;f<folderlist.length;f++) {
 		  				str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
 		  				prePOIArray = Array.concat(prePOIArray,str);
 	  				}
+	  			}
+	  			else {
+	  				prePOIArray = Array.concat(prePOIArray,"\n");
 	  			}
 	  		}
 	  	}
@@ -296,6 +304,9 @@ for(f=0;f<folderlist.length;f++) {
 						postpreArray = Array.concat(postpreArray,str);
 					}
 				}
+				else {
+					postpreArray = Array.concat(postpreArray,"\n");
+				}
 			}
 	
 			selectImage(post+"-unmask");
@@ -308,6 +319,9 @@ for(f=0;f<folderlist.length;f++) {
 						postpostArray = Array.concat(postpostArray,str);
 					}
 				}
+				else {
+					postpostArray = Array.concat(postpostArray,"\n");
+				}
 			}
 	
 			selectImage(POI+"-unmask");
@@ -319,6 +333,9 @@ for(f=0;f<folderlist.length;f++) {
 						str = "		"+getResult("Area",i)+"	"+getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
 						postPOIArray = Array.concat(postPOIArray,str);
 					}
+				}
+				else{
+					postPOIArray = Array.concat(postPOIArray,"\n");
 				}
 			}
 		}
@@ -390,6 +407,9 @@ for(f=0;f<folderlist.length;f++) {
 	  					POIPOIArray = Array.concat(POIPOIArray,str);
 	  				}
 	  			}
+	  			else{
+	  				POIPOIArray = Array.concat(POIPOIArray,"\n");
+	  			}
 	  		}
 	  	}
 	  	else{
@@ -423,6 +443,9 @@ for(f=0;f<folderlist.length;f++) {
 	  			prepostPOIArray = Array.concat(prepostPOIArray,str);
 	  		}
 	  	}
+	  	else {
+	  		prepostPOIArray = Array.concat(prepostPOIArray,"\n");
+	  	}
 
 		roiManager("reset");
 		countArray = newArray();
@@ -444,6 +467,9 @@ for(f=0;f<folderlist.length;f++) {
 				str = "		"+countArray[j]+1+"	"+getResult("Area",j)+"	"+getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j)+"\n";
 				postprePOIArray = Array.concat(postprePOIArray,str);
 			}
+		}
+		else{
+			postprePOIArray = Array.concat(postprePOIArray,"\n");
 		}
 
 		//three mask overlap
@@ -677,29 +703,29 @@ run("Close");
 selectWindow("ROI Manager"); 
 run("Close");
 
-UMcountprepostprepre = UMcountprepostprepre +"				"+ pre+"ROI/"+post+"Img					"+ pre+"ROI/"+ pre+"Img\n";
+UMcountprepostprepre = UMcountprepostprepre +"			"+ pre+"ROI/"+post+"Img				"+ pre+"ROI/"+ pre+"Img\n";
 for(k=0;k<prepostArray.length;k++)	{
 	UMcountprepostprepre = UMcountprepostprepre + prepostArray[k] +prepreArray[k];
 }
 
-UMcountpostprepostpost = UMcountpostprepostpost+"				"+ post+"ROI/"+pre+"Img					"+ post+"ROI/"+ post+"Img\n";
+UMcountpostprepostpost = UMcountpostprepostpost+"			"+ post+"ROI/"+pre+"Img				"+ post+"ROI/"+ post+"Img\n";
 for(k=0;k<postpreArray.length;k++)	{
 	UMcountpostprepostpost = UMcountpostprepostpost + postpreArray[k] +postpostArray[k];
 }
 
-UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI+"				"+ pre+"ROI/"+POI+"Img					"+post+"ROI/"+POI+"Img						"+POI+"ROI/"+POI+"Img"+" \n";
+UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI+"			"+ pre+"ROI/"+POI+"Img			"+post+"ROI/"+POI+"Img				"+POI+"ROI/"+POI+"Img"+" \n";
 for(k=0;k<prePOIArray.length;k++)	{
 	if(prePOIArray.length>k){
 		prePOI = prePOIArray[k];
 	}
 	else{
-		prePOI = "";
+		prePOI = "\n";
 	}
 	if(postPOIArray.length>k){
 		postPOI = postPOIArray[k];
 	}
 	else{
-		postPOI = "";
+		postPOI = "\n";
 	}
 	if(POIPOIArray.length>k){
 		POIPOI = POIPOIArray[k];
@@ -716,7 +742,7 @@ for(k=0;k<prepostPOIArray.length;k++)	{
 		prepostPOI = prepostPOIArray[k];
 	}
 	else{
-		prepostPOI = "";
+		prepostPOI = "\n";
 	}
 	if(postprePOIArray.length>k){
 		postprePOI = postprePOIArray[k];
