@@ -75,13 +75,14 @@ UMcountpostprepostpost = "the "+pre+"ROI are used to assess intensity of the "+p
 UMcountprePOIpostPOIPOIPOI = "the "+pre+" and "+post+" ROI are used to assess intensity of the "+POI+" image within the ROI, or over the raw image that the mask was made from\nassociation is at least 25% of the ROI filled with puncta from the mask\n";
 UMcounttriple = "the "+pre+" ROI associated with puncta from the "+post+" mask are used to assess intensity of the "+POI+" image within the ROI, or "+post+" ROI associated with "+pre+" mask puncta\nassociation is at least 25% of the ROI filled with puncta from the mask\n";
 tripleColocStr = "the first color listed is the ROI file used, the second color is the mask used to determine ROI that associate with it, and the third is the mask that the first and second color associated ROI are used to measure colocalization\nassociation is at least 25% of the ROI filled with puncta from the mask\n";
-
+ColocAreaStr = "the first color listed is the ROI file used, the second color is the mask used to determine ROI that associate with it, and the third is the mask that the first and second color associated ROI are used to measure colocalization\nassociation is at least 25% of the ROI filled with puncta from the mask\n";
 
 UMcountprepostprepre = UMcountprepostprepre+" Filename	#	AreaOf"+pre+"ROI		PrePost_intensity(/pix)	PrePostint_intensity(/um^2)	PrePost_intensity(sum_pix)		PrePre_intensity(/pix)	PrePre_intensity(/um^2)	PrePreraw_intensity(sum_pix)\n";
 UMcountpostprepostpost = UMcountpostprepostpost+"Filename	#	AreaOf"+post+"ROI		PostPre_intensity(/pix)	PostPreint_intensity(/um^2)	PostPre_intensity(sum_pix)		PostPost_intensity(/pix)	PostPostint_density(um)	PostPost_intensity(sum_pix)\n";
 UMcountprePOIpostPOIPOIPOI =UMcountprePOIpostPOIPOIPOI+ "Filename	#	AreaOf"+pre+"ROI		PrePOI_intensity(/pix)	PrePOIint_intensity(/um^2)	PrePOI_intensity(sum_pix)		AreaOf"+post+"ROI	PostPOI_intensity(/pix)	PostPOI_intensity(/um^2)	PostPOI_intensity(sum_pix)		AreaOf"+POI+"ROI	POIPOI_intensity(/pix)	POIPOI_intensity(/um^2)	POIPOI_intensity(sum_pix)\n";
 UMcounttriple = UMcounttriple+"Filename	#	AreaOf"+pre+post+"assocROI		PrePostPOIPOI_intensity(/pix)	PrePostPOIPOI_intensity(/um^2)	PrePostPOI_intensity(sum_pix)		#	AreaOf"+post+pre+"assocROI	PostPrePOI_intensity(/pix)	PostPrePOI_intensity(/um^2)	PostPrePOI_intensity(sum_pix)\n";
 tripleColocStr = tripleColocStr+"Filename	"+pre+post+POI+"count	total"+pre+post+POI+"count		"+post+pre+POI+"count	total"+post+pre+POI+"count		"+POI+post+pre+"count	total"+POI+post+pre+"count		"+post+POI+pre+"count	total"+post+POI+pre+"count		"+POI+pre+post+"count	total"+POI+pre+post+"count		"+pre+POI+post+"count	total"+pre+POI+post+"count\n";
+ColocAreaStr = ColocAreaStr+"Filename	"+pre+post+POI+"%overlap	"+post+pre+POI+"%overlap	"+POI+post+pre+"%overlap	"+post+POI+pre+"%overlap	"+POI+pre+post+"%overlap	"+pre+POI+post+"%overlap\n";
 
 
 //"foldercreate" is for generation of result folders - at the time of making this, it didn't allow for autoselection
@@ -101,13 +102,14 @@ for(f=0;f<folderlist.length;f++) {
 	prepreArray = Array.concat(prepreArray,"");
 	postpreArray = Array.concat(postpreArray,folderlist[f]+"\n");
 	postpostArray = Array.concat(postpostArray,"");
-	prePOIArray = Array.concat(prePOIArray,folderlist[f]+"\n");
-	postPOIArray = Array.concat(postPOIArray,folderlist[f]+"\n");
-	POIPOIArray = Array.concat(POIPOIArray,folderlist[f]+"\n");
+	prePOIArray = Array.concat(prePOIArray,folderlist[f]+"						");
+	postPOIArray = Array.concat(postPOIArray,"		"+folderlist[f]+"			");
+	POIPOIArray = Array.concat(POIPOIArray,"		"+folderlist[f]+"\n");
 
 	prepostPOIArray = Array.concat(prepostPOIArray,folderlist[f]+"\n");
 	postprePOIArray = Array.concat(postprePOIArray,folderlist[f]+"\n");
 	tripleColocStr = tripleColocStr+folderlist[f]+"\n";
+	ColocAreaStr = ColocAreaStr+folderlist[f]+"\n";
 
 	for(d=0;d<filelist.length;d++) {
 		//initialize :  open file, split channel, name by "red"/"green"/"blue"/"axon"
@@ -202,9 +204,6 @@ for(f=0;f<folderlist.length;f++) {
 	 	  				prepostArray = Array.concat(prepostArray,str);
 	 	 			}
 	 	 		}
-	 	 		else {
-	 	 			prepostArray = Array.concat(prepostArray,"\n");
-	 	 		}
 	  		}
 	  		selectImage(pre+"-unmask");
 	  		run("Clear Results");
@@ -216,9 +215,6 @@ for(f=0;f<folderlist.length;f++) {
 		  				prepreArray = Array.concat(prepreArray,str);
 	  				}
 	  			}
-	  			else {
-		  			prepreArray = Array.concat(prepreArray,"\n");
-	  			}
 	  		}
 	  		selectImage(POI+"-unmask");
 	  		run("Clear Results");
@@ -229,9 +225,6 @@ for(f=0;f<folderlist.length;f++) {
 		  				str = filelist[d]+"	"+i+1+"	"+getResult("Area",i)+"		"+getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
 		  				prePOIArray = Array.concat(prePOIArray,str);
 	  				}
-	  			}
-	  			else {
-	  				prePOIArray = Array.concat(prePOIArray,"\n");
 	  			}
 	  		}
 	  	}
@@ -304,9 +297,6 @@ for(f=0;f<folderlist.length;f++) {
 						postpreArray = Array.concat(postpreArray,str);
 					}
 				}
-				else {
-					postpreArray = Array.concat(postpreArray,"\n");
-				}
 			}
 	
 			selectImage(post+"-unmask");
@@ -319,9 +309,6 @@ for(f=0;f<folderlist.length;f++) {
 						postpostArray = Array.concat(postpostArray,str);
 					}
 				}
-				else {
-					postpostArray = Array.concat(postpostArray,"\n");
-				}
 			}
 	
 			selectImage(POI+"-unmask");
@@ -333,9 +320,6 @@ for(f=0;f<folderlist.length;f++) {
 						str = "		"+getResult("Area",i)+"	"+getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i);
 						postPOIArray = Array.concat(postPOIArray,str);
 					}
-				}
-				else{
-					postPOIArray = Array.concat(postPOIArray,"\n");
 				}
 			}
 		}
@@ -403,12 +387,9 @@ for(f=0;f<folderlist.length;f++) {
 	  		for(i=0;i<roiManager("Count");i++) {
 	  			if(getResult("Area",i)>0)	{
 	  				if(getResult("%Area",i)>0)	{
-	  					str = "		"+getResult("Area",i)+ getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
+	  					str = "		"+getResult("Area",i)+"	"+getResult("Mean",i)+"	"+getResult("IntDen",i)+"	"+getResult("RawIntDen",i)+"\n";
 	  					POIPOIArray = Array.concat(POIPOIArray,str);
 	  				}
-	  			}
-	  			else{
-	  				POIPOIArray = Array.concat(POIPOIArray,"\n");
 	  			}
 	  		}
 	  	}
@@ -443,9 +424,6 @@ for(f=0;f<folderlist.length;f++) {
 	  			prepostPOIArray = Array.concat(prepostPOIArray,str);
 	  		}
 	  	}
-	  	else {
-	  		prepostPOIArray = Array.concat(prepostPOIArray,"\n");
-	  	}
 
 		roiManager("reset");
 		countArray = newArray();
@@ -467,9 +445,6 @@ for(f=0;f<folderlist.length;f++) {
 				str = "		"+countArray[j]+1+"	"+getResult("Area",j)+"	"+getResult("Mean",j)+"	"+getResult("IntDen",j)+"	"+getResult("RawIntDen",j)+"\n";
 				postprePOIArray = Array.concat(postprePOIArray,str);
 			}
-		}
-		else{
-			postprePOIArray = Array.concat(postprePOIArray,"\n");
 		}
 
 		//three mask overlap
@@ -703,35 +678,35 @@ run("Close");
 selectWindow("ROI Manager"); 
 run("Close");
 
-UMcountprepostprepre = UMcountprepostprepre +"			"+ pre+"ROI/"+post+"Img				"+ pre+"ROI/"+ pre+"Img\n";
+UMcountprepostprepre = UMcountprepostprepre +"				"+ pre+"ROI/"+post+"Img				"+ pre+"ROI/"+ pre+"Img\n";
 for(k=0;k<prepostArray.length;k++)	{
 	UMcountprepostprepre = UMcountprepostprepre + prepostArray[k] +prepreArray[k];
 }
 
-UMcountpostprepostpost = UMcountpostprepostpost+"			"+ post+"ROI/"+pre+"Img				"+ post+"ROI/"+ post+"Img\n";
+UMcountpostprepostpost = UMcountpostprepostpost+"				"+ post+"ROI/"+pre+"Img				"+ post+"ROI/"+ post+"Img\n";
 for(k=0;k<postpreArray.length;k++)	{
 	UMcountpostprepostpost = UMcountpostprepostpost + postpreArray[k] +postpostArray[k];
 }
 
-UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI+"			"+ pre+"ROI/"+POI+"Img			"+post+"ROI/"+POI+"Img				"+POI+"ROI/"+POI+"Img"+" \n";
+UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI+"				"+ pre+"ROI/"+POI+"Img				"+post+"ROI/"+POI+"Img					"+POI+"ROI/"+POI+"Img"+" \n";
 for(k=0;k<prePOIArray.length;k++)	{
 	if(prePOIArray.length>k){
 		prePOI = prePOIArray[k];
 	}
 	else{
-		prePOI = "\n";
+		prePOI = "					";
 	}
 	if(postPOIArray.length>k){
 		postPOI = postPOIArray[k];
 	}
 	else{
-		postPOI = "\n";
+		postPOI = "					";
 	}
 	if(POIPOIArray.length>k){
 		POIPOI = POIPOIArray[k];
 	}
 	else{
-		POIPOI = "\n";
+		POIPOI = "					\n";
 	}
 	UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI + prePOI+postPOI+POIPOI;
 }
@@ -742,7 +717,7 @@ for(k=0;k<prepostPOIArray.length;k++)	{
 		prepostPOI = prepostPOIArray[k];
 	}
 	else{
-		prepostPOI = "\n";
+		prepostPOI = "				";
 	}
 	if(postprePOIArray.length>k){
 		postprePOI = postprePOIArray[k];
@@ -755,10 +730,10 @@ for(k=0;k<prepostPOIArray.length;k++)	{
 
 
 
-File.saveString(UMcountprepostprepre,resultdir+"rawPrePostintensity.xls");
-File.saveString(UMcountpostprepostpost,resultdir+"rawPostPreintensity.xls");
-File.saveString(UMcountprePOIpostPOIPOIPOI,resultdir+"rawprepostPOIintensity.xls");
-File.saveString(UMcounttriple,resultdir+"rawPOItripleintensity.xls");
+File.saveString(UMcountprepostprepre,resultdir+"PrePostintensity.xls");
+File.saveString(UMcountpostprepostpost,resultdir+"PostPreintensity.xls");
+File.saveString(UMcountprePOIpostPOIPOIPOI,resultdir+"prepostPOIintensity.xls");
+File.saveString(UMcounttriple,resultdir+"POItripleintensity.xls");
 File.saveString(tripleColocStr,resultdir+"tripleColoc_masks.xls");
 
 //the following functions are listed in order of use in the macro
