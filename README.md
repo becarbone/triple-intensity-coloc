@@ -7,19 +7,13 @@ This macro requires: the dendrite ROI's in RGB compressed format within subfolde
 below is a simple illustration of approximately what is meant by 25% overlap. The o's indicate the punctum that is filled at least 25% by the other punctum (noted by x's), and so from the perspective of the o's punctum this is colocalized, but from the perspective of the x's punctum, it's not. 
 
 ooooooo 
-
 ooooooo
- 
 ooxxxooxxxx
- 
 oxxxxoxxxxxx
-
- xxxxxxxxxx
- 
- xxxxx
- 
- xxx
-        
+xxxxxxxxxx
+xxxxxxxxx
+xxxxxxxx
+xxxxxx 
 
 This macro puts out: a bunch of spreadsheets (the method for exporting them w/ the imagej macro language is not 100% compatible with current spreadsheet programs, so if a box asks about having the right file, just hit yes and it'll open)
 
