@@ -43,7 +43,7 @@ folderlist=getFileList(rawdir);
 //setup for the intensity analysis, overlay of ROI from mask on unmasked channel image
 //prepost = pre ROI/post image
 //prepre = pre ROI/pre image
-//postpreArray = post ROI/pre image
+//postpreArray = post ROI/pre
 //postpost = post ROI/post image
 //prePOI = pre ROI/POI image
 //postPOI = post ROI/POI image
@@ -62,6 +62,18 @@ prePOIArray = newArray("");
 postPOIArray = newArray("");
 POIPOIArray = newArray("");
 
+totalprepostPOIArea = newArray();
+totalpostprePOIArea = newArray();
+totalPOIpostpreArea = newArray();
+totalpostPOIpreArea = newArray();
+totalPOIprepostArea = newArray();
+totalprePOIpostArea = newArray();
+prepostPOIArea = newArray();
+postprePOIArea = newArray();
+POIpostpreArea = newArray();
+postPOIpreArea = newArray();
+POIprepostArea = newArray();
+prePOIpostArea = newArray();
 
 //these arrays are for two channel associations dependent on a third
 prepostPOIArray = newArray("");
@@ -82,17 +94,14 @@ UMcountpostprepostpost = UMcountpostprepostpost+"Filename	#	AreaOf"+post+"ROI		P
 UMcountprePOIpostPOIPOIPOI =UMcountprePOIpostPOIPOIPOI+ "Filename	#	AreaOf"+pre+"ROI		PrePOI_intensity(/pix)	PrePOIint_intensity(/um^2)	PrePOI_intensity(sum_pix)		AreaOf"+post+"ROI	PostPOI_intensity(/pix)	PostPOI_intensity(/um^2)	PostPOI_intensity(sum_pix)		AreaOf"+POI+"ROI	POIPOI_intensity(/pix)	POIPOI_intensity(/um^2)	POIPOI_intensity(sum_pix)\n";
 UMcounttriple = UMcounttriple+"Filename	#	AreaOf"+pre+post+"assocROI		PrePostPOIPOI_intensity(/pix)	PrePostPOIPOI_intensity(/um^2)	PrePostPOI_intensity(sum_pix)		#	AreaOf"+post+pre+"assocROI	PostPrePOI_intensity(/pix)	PostPrePOI_intensity(/um^2)	PostPrePOI_intensity(sum_pix)\n";
 tripleColocStr = tripleColocStr+"Filename	"+pre+post+POI+"count	total"+pre+post+POI+"count		"+post+pre+POI+"count	total"+post+pre+POI+"count		"+POI+post+pre+"count	total"+POI+post+pre+"count		"+post+POI+pre+"count	total"+post+POI+pre+"count		"+POI+pre+post+"count	total"+POI+pre+post+"count		"+pre+POI+post+"count	total"+pre+POI+post+"count\n";
-ColocAreaStr = ColocAreaStr+"Filename	"+pre+post+POI+"%overlap	"+post+pre+POI+"%overlap	"+POI+post+pre+"%overlap	"+post+POI+pre+"%overlap	"+POI+pre+post+"%overlap	"+pre+POI+post+"%overlap\n";
-
-
-//"foldercreate" is for generation of result folders - at the time of making this, it didn't allow for autoselection
-//of the result folder with the code. Might be worth going back thru to see if it can be done a diff
-//way that reduces the input I've gotta do
+ColocAreaStr = ColocAreaStr+"Filename	#	"+pre+post+POI+"%overlap	Filename	#	"+post+pre+POI+"%overlap	Filename	#	"+POI+post+pre+"%overlap	Filename	#	"+post+POI+pre+"%overlap	Filename	#	"+POI+pre+post+"%overlap	Filename	#	"+pre+POI+post+"%overlap\n";
 
 for(f=0;f<folderlist.length;f++) {
 
 	foldername = File.getName(rawdir+folderlist[f]);
-	File.makeDirectory(resultdir+foldername);
+	if(File.exists(resultdir+foldername)!=1) {
+		File.makeDirectory(resultdir+foldername);
+	}
 	rawlist=getFileList(rawdir+foldername);
 	filelist=getFileList(rawdir+folderlist[f]);
 	resultpath = getFileList(rawdir+folderlist[f]);
@@ -106,6 +115,13 @@ for(f=0;f<folderlist.length;f++) {
 	postPOIArray = Array.concat(postPOIArray,"		"+folderlist[f]+"			");
 	POIPOIArray = Array.concat(POIPOIArray,"		"+folderlist[f]+"\n");
 
+	prepostPOIArea = Array.concat(prepostPOIArea,"		"+folderlist[f]+"			");
+	postprePOIArea = Array.concat(postprePOIArea,"		"+folderlist[f]+"\n");
+	POIpostpreArea = Array.concat(POIpostpreArea,folderlist[f]+"\n");
+	postPOIpreArea = Array.concat(postPOIpreArea,folderlist[f]+"\n");
+	POIprepostArea = Array.concat(POIprepostArea,folderlist[f]+"\n");
+	prePOIpostArea = Array.concat(prePOIpostArea,folderlist[f]+"\n");
+
 	prepostPOIArray = Array.concat(prepostPOIArray,folderlist[f]+"\n");
 	postprePOIArray = Array.concat(postprePOIArray,folderlist[f]+"\n");
 	tripleColocStr = tripleColocStr+folderlist[f]+"\n";
@@ -113,12 +129,144 @@ for(f=0;f<folderlist.length;f++) {
 
 	for(d=0;d<filelist.length;d++) {
 		//initialize :  open file, split channel, name by "red"/"green"/"blue"/"axon"
-		initialize();
 
+		open(rawdir+folderlist[f]+rawlist[d]);
+
+		selectImage(nImages);
+		name=getTitle();
+		run("Properties...", "channels=1 slices=1 frames=1 unit=um pixel_width="+scale+" pixel_height="+scale+" voxel_depth=1");
+		run("Split Channels");
+	
+		selectImage(name+" (blue)"); 
+		rename("Blue");
+		run("Duplicate...", " ");
+		selectImage("Blue-1"); 
+		rename("Blue-unmask");
+	
+		selectImage(name+" (green)"); 
+		rename("Green");
+		run("Duplicate...", " ");
+		selectImage("Green-1"); 
+		rename("Green-unmask");
+	
+		selectImage(name+" (red)"); 
+		rename("Red");
+		run("Duplicate...", " ");
+		selectImage("Red-1"); 
+		rename("Red-unmask");
+	
 		//create green, red, blue mask images and roi files
-		mask(pre); 
-		mask(post);
-		mask(POI);
+		//presynaptic mask
+		channel = pre;
+		selectImage(channel);
+		run("Gaussian Blur...", "sigma=1");
+		if( channel == "Green") {
+			setThreshold(greenThreshold, 255);
+			}
+		if( channel == "Red") {
+			setThreshold(redThreshold, 255);
+			}
+		if( channel == "Blue") {
+			setThreshold(blueThreshold, 255);
+			}
+		run("Find Maxima...", "noise=10 output=[Segmented Particles] above");
+		run("Analyze Particles...", "size="+minsize+"-"+maxsize+" pixel show=Masks add");
+		selectWindow("Mask of "+channel+" Segmented");  
+		run("Grays");
+		saveAs("Tiff", resultdir+folderlist[f]+name+"_"+channel+"_mask.tif");
+		run("Clear Results");
+		roiManager("Measure");
+		selectWindow("Results");
+	
+		run("Clear Results");
+		rename(channel+" mask");
+		selectImage(channel); 
+		close();
+		selectImage(channel+" Segmented"); 
+		close();
+	
+		//gets the # of puncta counted in each condition
+		precount = roiManager("Count");
+
+		if( roiManager("Count") > 0 )	{
+			roiManager("Save",resultdir+folderlist[f]+name+"_"+channel+"_ROI.zip");
+		}
+		roiManager("reset");
+
+		//postsynaptic mask
+		channel = post;
+		selectImage(channel);
+		run("Gaussian Blur...", "sigma=1");
+		if( channel == "Green") {
+			setThreshold(greenThreshold, 255);
+			}
+		if( channel == "Red") {
+			setThreshold(redThreshold, 255);
+			}
+		if( channel == "Blue") {
+			setThreshold(blueThreshold, 255);
+			}
+		run("Find Maxima...", "noise=10 output=[Segmented Particles] above");
+		run("Analyze Particles...", "size="+minsize+"-"+maxsize+" pixel show=Masks add");
+		selectWindow("Mask of "+channel+" Segmented");  
+		run("Grays");
+		saveAs("Tiff", resultdir+folderlist[f]+name+"_"+channel+"_mask.tif");
+		run("Clear Results");
+		roiManager("Measure");
+		selectWindow("Results");
+	
+		run("Clear Results");
+		rename(channel+" mask");
+		selectImage(channel); 
+		close();
+		selectImage(channel+" Segmented"); 
+		close();
+	
+		//gets the # of puncta counted in each condition
+		postcount = roiManager("Count");
+	  
+		if( roiManager("Count") > 0 )	{
+			roiManager("Save",resultdir+folderlist[f]+name+"_"+channel+"_ROI.zip");
+		}
+		roiManager("reset");
+
+		//protein of interest (POI) mask
+		channel = POI;
+		selectImage(channel);
+		run("Gaussian Blur...", "sigma=1");
+		if( channel == "Green") {
+			setThreshold(greenThreshold, 255);
+			}
+		if( channel == "Red") {
+			setThreshold(redThreshold, 255);
+			}
+		if( channel == "Blue") {
+			setThreshold(blueThreshold, 255);
+			}
+		run("Find Maxima...", "noise=10 output=[Segmented Particles] above");
+		run("Analyze Particles...", "size="+minsize+"-"+maxsize+" pixel show=Masks add");
+		selectWindow("Mask of "+channel+" Segmented");  
+		run("Grays");
+		saveAs("Tiff", resultdir+folderlist[f]+name+"_"+channel+"_mask.tif");
+		run("Clear Results");
+		roiManager("Measure");
+		selectWindow("Results");
+	
+		run("Clear Results");
+		rename(channel+" mask");
+		selectImage(channel); 
+		close();
+		selectImage(channel+" Segmented"); 
+		close();
+
+		//gets the # of puncta counted in each condition
+		
+		POIcount = roiManager("Count");
+
+		if( roiManager("Count") > 0 )	{
+			roiManager("Save",resultdir+folderlist[f]+name+"_"+channel+"_ROI.zip");
+		}
+		roiManager("reset");
 
 		//this function opens the saved ROI files for the green, red, blue channels of each image and overlays them
 		//either using the green mask as the base image and checking for overlap of the red puncta, etc...
@@ -450,26 +598,7 @@ for(f=0;f<folderlist.length;f++) {
 		//three mask overlap
 		//prepostPOI = pre ROI that overlap at least 25% with the mask of post
 		//the overlapping prepostROI are then laid over the POI mask and counted 
-		totalprepostPOIcount = "	";
-		totalpostprePOIcount = "	";
-		totalPOIpostprecount = "	";
-		totalpostPOIprecount = "	";
-		totalPOIprepostcount = "	";
-		totalprePOIpostcount = "	";
-
-		prepostPOIcount = "	";
-		postprePOIcount = "	";
-		POIpostprecount = "	";
-		postPOIprecount = "	";
-		POIprepostcount = "	";
-		prePOIpostcount = "	";
-
-		prepostPOIArea = "";
-		postprePOIArea = "";
-		POIpostpreArea = "";
-		postPOIpreArea = "";
-		POIprepostArea = "";
-		prePOIpostArea = "";
+		
 
 		//mask triple colocalization starts here
 		roiManager("reset"); 
@@ -493,8 +622,10 @@ for(f=0;f<folderlist.length;f++) {
 				roiManager("Measure");
 				if(getResult("%Area",j) >= areapercent) {
 					counted++;
+					prepostPOIArea = Array.concat(prepostPOIArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));
 				}
-				x++;	
+				x++;
+				totalprepostPOIArea = Array.concat(totalprepostPOIArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));
 			}
 			totalprepostPOIcount = x;
 			prepostPOIcount = counted;
@@ -517,8 +648,10 @@ for(f=0;f<folderlist.length;f++) {
 				roiManager("Measure");
 				if(getResult("%Area",j) >= areapercent) {
 					counted++;
+					prePOIpostArea = Array.concat(prePOIpostArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));
 				}
-				x++;	
+				x++;
+				totalprePOIpostArea = Array.concat(totalprePOIpostArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));	
 			}
 			totalprePOIpostcount = x;
 			prePOIpostcount = counted;
@@ -551,8 +684,10 @@ for(f=0;f<folderlist.length;f++) {
 				roiManager("Measure");
 				if(getResult("%Area",j) >= areapercent) {
 					counted++;
+					postprePOIArea = Array.concat(postprePOIArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));
 				}
 				x++;	
+				totalpostprePOIArea = Array.concat(totalpostprePOIArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));
 			}
 			totalpostprePOIcount = x;
 			postprePOIcount = counted;
@@ -575,8 +710,10 @@ for(f=0;f<folderlist.length;f++) {
 				roiManager("Measure");
 				if(getResult("%Area",j) >= areapercent) {
 					counted++;
+					postPOIpreArea = Array.concat(postPOIpreArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));
 				}
 				x++;	
+				totalpostPOIpreArea = Array.concat(totalpostPOIpreArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));	
 			}
 			totalpostPOIprecount = x;
 			postPOIprecount = counted;
@@ -609,8 +746,10 @@ for(f=0;f<folderlist.length;f++) {
 				roiManager("Measure");
 				if(getResult("%Area",j) >= areapercent) {
 					counted++;
+					POIprepostArea = Array.concat(POIprepostArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));
 				}
 				x++;	
+				totalPOIprepostArea = Array.concat(totalPOIprepostArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));	
 			}
 			totalPOIprepostcount = x;
 			POIprepostcount = counted;
@@ -633,13 +772,13 @@ for(f=0;f<folderlist.length;f++) {
 				roiManager("Measure");
 				if(getResult("%Area",j) >= areapercent) {
 					counted++;
+					POIpostpreArea = Array.concat(POIpostpreArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));
 				}
 				x++;	
+				totalPOIpostpreArea = Array.concat(totalPOIpostpreArea,name+"	"+countArray[j]+"	"+getResult("%Area",j));		
 			}
 			totalPOIpostprecount = x;
 			POIpostprecount = counted;
-	
-			
 		}
 		else{
 			totalPOIprepostcount = 0;
@@ -649,14 +788,37 @@ for(f=0;f<folderlist.length;f++) {
 		}
 
 		run("Close All"); 
-
-		prepostPOIArea = ""; 
-		postprePOIArea = "";
-		POIpostpreArea = "";
-		postPOIpreArea = "";
-		POIprepostArea = "";
-		prePOIpostArea = "";
-
+		lengthArray = newArray(prepostPOIArea.length,postprePOIArea.length,POIpostpreArea.length,postPOIpreArea.length,POIprepostArea.length,prePOIpostArea.length);
+		Array.getStatistics(lengthArray, min, max, mean, stdDev);
+		g=0;
+		//for(k=0;k<max;k++)	{
+		//	prpoPO = "";
+		//	poprPO = "";
+		//	POpopr = "";
+		//	poPOpr = "";
+		//	POprpo = "";
+		//	prPOpo = "";
+		//	if(prepostPOIArea.length>=g){
+		//		prpoPO = prepostPOIArea[k];
+		//	}
+		//	if(postprePOIArea.length>=g)	{
+		//		poprPO = postprePOIArea[k];
+		//	}
+		//	if(POIpostpreArea.length>=g)	{
+		//		POpopr = POIpostpreArea[k];
+		//	}
+		//	if(postPOIpreArea.length>=g)	{
+		//		poPOpr = postPOIpreArea[k];
+		//	}
+		//	if(POIprepostArea.length>=g)	{
+		//		POprpo = POIprepostArea[k];
+		//	}
+		//	if(prePOIpostArea.length>=g)	{
+		//		prPOpo = prePOIpostArea[k];
+		//	}
+		//	ColocAreaStr = ColocAreaStr+prpoPO+"	"+poprPO+"	"+POpopr+"	"+poPOpr + "	"+POprpo+"	"+prPOpo+"\n";
+		//	g++;
+		//}
 		tripleColocStr = tripleColocStr +name+"	"+ prepostPOIcount+"	"+totalprepostPOIcount+"		"+postprePOIcount+"	"+totalpostprePOIcount+"		"+POIpostprecount+"	"+totalPOIpostprecount+"		"+postPOIprecount+"	"+totalpostPOIprecount+"		"+POIprepostcount+"	"+totalPOIprepostcount+"		"+prePOIpostcount+"	"+totalprePOIpostcount+"\n";
 		print(name+"	"+precount+"	"+postcount+"	"+POIcount+"		"+prepostcount+"	"+postprecount+"	"+prePOIcount+"	"+postPOIcount+"	"+POIprecount+"	"+POIpostcount+"		"+totalprepostcount+"	"+totalpostprecount+"	"+totalprePOIcount+"	"+totalpostPOIcount+"	"+totalPOIprecount+"	"+totalPOIpostcount+"		"+(prepostcount/totalprepostcount)+"	"+(postprecount/totalpostprecount)+"	"+(prePOIcount/totalprePOIcount)+"	"+(postPOIcount/totalpostPOIcount)+"	"+(POIprecount/totalPOIprecount)+"	"+(POIpostcount/totalPOIpostcount));
 		//resultdir+folderlist[f] is the name of the condition
@@ -684,26 +846,26 @@ for(k=0;k<prepostArray.length;k++)	{
 }
 
 UMcountpostprepostpost = UMcountpostprepostpost+"				"+ post+"ROI/"+pre+"Img				"+ post+"ROI/"+ post+"Img\n";
-for(k=0;k<postpreArray.length;k++)	{
-	UMcountpostprepostpost = UMcountpostprepostpost + postpreArray[k] +postpostArray[k];
+for(o=0;o<postpreArray.length;o++)	{
+	UMcountpostprepostpost = UMcountpostprepostpost + postpreArray[o] +postpostArray[o];
 }
 
 UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI+"				"+ pre+"ROI/"+POI+"Img				"+post+"ROI/"+POI+"Img					"+POI+"ROI/"+POI+"Img"+" \n";
-for(k=0;k<prePOIArray.length;k++)	{
-	if(prePOIArray.length>k){
-		prePOI = prePOIArray[k];
+for(v=0;v<prePOIArray.length;v++)	{
+	if(prePOIArray.length>v){
+		prePOI = prePOIArray[v];
 	}
 	else{
 		prePOI = "					";
 	}
-	if(postPOIArray.length>k){
-		postPOI = postPOIArray[k];
+	if(postPOIArray.length>v){
+		postPOI = postPOIArray[v];
 	}
 	else{
 		postPOI = "					";
 	}
-	if(POIPOIArray.length>k){
-		POIPOI = POIPOIArray[k];
+	if(POIPOIArray.length>v){
+		POIPOI = POIPOIArray[v];
 	}
 	else{
 		POIPOI = "					\n";
@@ -711,16 +873,16 @@ for(k=0;k<prePOIArray.length;k++)	{
 	UMcountprePOIpostPOIPOIPOI = UMcountprePOIpostPOIPOIPOI + prePOI+postPOI+POIPOI;
 }
 
-UMcounttriple = UMcounttriple+"				"+ pre+post+"ROI/"+POI+"Img					"+pre+post+"ROI/"+POI+"Img\n";
-for(k=0;k<prepostPOIArray.length;k++)	{
-	if(prepostPOIArray.length>k){
-		prepostPOI = prepostPOIArray[k];
+UMcounttriple = UMcounttriple+"				"+ pre+post+"ROI/"+POI+"Img					"+post+pre+"ROI/"+POI+"Img\n";
+for(m=0;m<prepostPOIArray.length;m++)	{
+	if(prepostPOIArray.length>m){
+		prepostPOI = prepostPOIArray[m];
 	}
 	else{
 		prepostPOI = "				";
 	}
-	if(postprePOIArray.length>k){
-		postprePOI = postprePOIArray[k];
+	if(postprePOIArray.length>m){
+		postprePOI = postprePOIArray[m];
 	}
 	else{
 		postprePOI = "\n";
@@ -728,13 +890,12 @@ for(k=0;k<prepostPOIArray.length;k++)	{
 	UMcounttriple = UMcounttriple + prepostPOI +postprePOI;
 }
 
-
-
 File.saveString(UMcountprepostprepre,resultdir+"PrePostintensity.xls");
 File.saveString(UMcountpostprepostpost,resultdir+"PostPreintensity.xls");
 File.saveString(UMcountprePOIpostPOIPOIPOI,resultdir+"prepostPOIintensity.xls");
 File.saveString(UMcounttriple,resultdir+"POItripleintensity.xls");
 File.saveString(tripleColocStr,resultdir+"tripleColoc_masks.xls");
+File.saveString(ColocAreaStr,resultdir+"tripleColoc_areas.xls")
 
 //the following functions are listed in order of use in the macro
 
@@ -746,8 +907,8 @@ function parameterinput()
 		Dialog.addNumber("Red Threshold:", 30);
 		Dialog.addNumber("Blue Threshold", 30);
 		Dialog.addNumber("Area Percent (%):", 25);
-		Dialog.addNumber("Pixel Scale (um/pixel):", 0.1705);
-		Dialog.addNumber("Min Puncta Size (pixel):", 3);
+		Dialog.addNumber("Pixel Scale (um/pixel):", 0.1803752);
+		Dialog.addNumber("Min Puncta Size (pixel):", 5);
 		Dialog.addNumber("Max Puncta Size (pixel):", 60);
 		Dialog.addChoice("presynaptic channel",colors,colors[0]);
 		Dialog.addChoice("postsynaptic channel",colors,colors[1]);
@@ -769,83 +930,13 @@ function parameterinput()
 //gets the name, standardizes the properties of the image, splits the channels and discards the blue channel 
 //as "axon" to be saved elsewhere
 
-function initialize()
- {
-	open(rawdir+foldername+File.separator+rawlist[d]);
-	name=getInfo("image.filename");
-	run("Properties...", "channels=1 slices=1 frames=1 unit=um pixel_width="+scale+" pixel_height=0.1705 voxel_depth=1");
-	run("Split Channels");
-
-	selectImage(name+" (blue)"); 
-	rename("Blue");
-	run("Duplicate...", " ");
-	selectImage("Blue-1"); 
-	rename("Blue-unmask");
-
-	selectImage(name+" (green)"); 
-	rename("Green");
-	run("Duplicate...", " ");
-	selectImage("Green-1"); 
-	rename("Green-unmask");
-
-	selectImage(name+" (red)"); 
-	rename("Red");
-	run("Duplicate...", " ");
-	selectImage("Red-1"); 
-	rename("Red-unmask");
- }
 
 //this function creates a mask for the selected color channel (green or red). 
 //it takes the threshold indicated in the parameter input, uses it to point out the maxima 
 //and then runs "analyze particles" within the specified puncta size, saves the number of puncta as a string, saves the ROI, 
 //and saves the mask
 
-function mask(channel)
-	{
-	selectImage(channel);
-	run("Gaussian Blur...", "sigma=1");
-	if( channel == "Green") {
-		setThreshold(greenThreshold, 255);
-		}
-	if( channel == "Red") {
-		setThreshold(redThreshold, 255);
-		}
-	if( channel == "Blue") {
-		setThreshold(blueThreshold, 255);
-		}
-	run("Find Maxima...", "noise=10 output=[Segmented Particles] above");
-	run("Analyze Particles...", "size="+minsize+"-"+maxsize+" pixel show=Masks add");
-	selectWindow("Mask of "+channel+" Segmented");  
-	run("Grays");
-	saveAs("Tiff", resultdir+folderlist[f]+name+"_"+channel+"_mask.tif");
-	run("Clear Results");
-	roiManager("Measure");
-	selectWindow("Results");
 
-	run("Clear Results");
-	rename(channel+" mask");
-	selectImage(channel); 
-	close();
-	selectImage(channel+" Segmented"); 
-	close();
-
-	//gets the # of puncta counted in each condition
-	if( channel == pre )  {
-		precount = roiManager("Count");
-		}
-	if( channel == post )  {
-		postcount = roiManager("Count");
-		}
-	if( channel == POI )  {
-		POIcount = roiManager("Count");
-		}
-  
-	if( roiManager("Count") > 0 )
-		{
-		roiManager("Save",resultdir+folderlist[f]+name+"_"+channel+"_ROI.zip");
-		}
-	roiManager("reset");
-	}
 
 //this function increases the contrast for the blue channel (marking dendrites even though it says axons)
 //and measures the length of the segment (even though this is usually also done manually as a precaution)
