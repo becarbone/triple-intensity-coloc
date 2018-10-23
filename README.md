@@ -4,12 +4,12 @@ It is designed to take dendrites and assess them with respect to "pre" "post" an
 
 This macro requires: the dendrite ROI's in RGB compressed format within subfolders by treatment condition (ctrl, exp1, exp2, etc...), the chosen threshold for each of the three channels, the denotation of which color should be associated with which marker (pre/post/POI), and the percentage (in non-decimal format) for the amount of overlap required for two adjacent puncta to be considered overlapping. 
 
-below is a simple illustration of approximately what is meant by 25% overlap. The straight lines indicate the punctum that is filled at least 25% by the other punctum (noted by x's), and so from the perspective of the straight line punctum this is colocalized, but from the perspective of the x's punctum, it's not. 
+below is a simple illustration of approximately what is meant by 25% overlap. The o's indicate the punctum that is filled at least 25% by the other punctum (noted by x's), and so from the perspective of the o's punctum this is colocalized, but from the perspective of the x's punctum, it's not. 
 
-^------
- |    |
- | xxx|xxxx
-^------xxxxxx
+ooooooo 
+ o    o
+ o xxxoxxxx
+oooooooxxxxxx
    xxxxxxxxxx
       xxxxx
         xxx
