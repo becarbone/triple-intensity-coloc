@@ -6,10 +6,10 @@ This macro requires: the dendrite ROI's in RGB compressed format within subfolde
 
 below is a simple illustration of approximately what is meant by 25% overlap. The straight lines indicate the punctum that is filled at least 25% by the other punctum (noted by x's), and so from the perspective of the straight line punctum this is colocalized, but from the perspective of the x's punctum, it's not. 
 
-------
-|    |
-| xxx|xxxx
-------xxxxxx
+^------
+ |    |
+ | xxx|xxxx
+^------xxxxxx
    xxxxxxxxxx
       xxxxx
         xxx
