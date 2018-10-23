@@ -10,9 +10,9 @@ ooooooo
 
 ooooooo
 
-ooxxxooxxxx
+ooooxooxxxx
 
-oxxxxoxxxxxx
+ooxxxxoxxxxxx
 
 xxxxxxxxxx
 
