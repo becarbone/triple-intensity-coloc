@@ -12,13 +12,13 @@ ooooooo
  
 ooxxxooxxxx
  
-oooooooxxxxxx
+oxxxxoxxxxxx
 
-   xxxxxxxxxx
-   
-      xxxxx
-      
-        xxx
+ xxxxxxxxxx
+ 
+ xxxxx
+ 
+ xxx
         
 
 This macro puts out: a bunch of spreadsheets (the method for exporting them w/ the imagej macro language is not 100% compatible with current spreadsheet programs, so if a box asks about having the right file, just hit yes and it'll open)
