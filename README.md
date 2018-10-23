@@ -8,9 +8,9 @@ below is a simple illustration of approximately what is meant by 25% overlap. Th
 
 ooooooo 
 
-o_____o
+ooooooo
  
-o xxx oxxxx
+ooxxxooxxxx
  
 oooooooxxxxxx
 
