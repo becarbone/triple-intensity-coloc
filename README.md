@@ -10,7 +10,7 @@ ooooooo
 
 ooooooo
 
-ooooxooxxxx
+ooooxxoxxxx
 
 ooxxxxoxxxxxx
 
