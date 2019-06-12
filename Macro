@@ -91,14 +91,12 @@ UMcountpostprepostpost = "the "+pre+"ROI are used to assess intensity of the "+p
 UMcountprePOIpostPOIPOIPOI = "the "+pre+" and "+post+" ROI are used to assess intensity of the "+POI+" image within the ROI, or over the raw image that the mask was made from\nassociation is at least 25% of the ROI filled with puncta from the mask\n";
 UMcounttriple = "the "+pre+" ROI associated with puncta from the "+post+" mask are used to assess intensity of the "+POI+" image within the ROI, or "+post+" ROI associated with "+pre+" mask puncta\nassociation is at least 25% of the ROI filled with puncta from the mask\n";
 tripleColocStr = "the first color listed is the ROI file used, the second color is the mask used to determine ROI that associate with it, and the third is the mask that the first and second color associated ROI are used to measure colocalization\nassociation is at least 25% of the ROI filled with puncta from the mask\n";
-ColocAreaStr = "the first color listed is the ROI file used, the second color is the mask used to determine ROI that associate with it, and the third is the mask that the first and second color associated ROI are used to measure colocalization\nassociation is at least 25% of the ROI filled with puncta from the mask\n";
 
 UMcountprepostprepre = UMcountprepostprepre+" Filename	#	AreaOf"+pre+"ROI		PrePost_intensity(/pix)	PrePostint_intensity(/um^2)	PrePost_intensity(sum_pix)		PrePre_intensity(/pix)	PrePre_intensity(/um^2)	PrePreraw_intensity(sum_pix)\n";
 UMcountpostprepostpost = UMcountpostprepostpost+"Filename	#	AreaOf"+post+"ROI		PostPre_intensity(/pix)	PostPreint_intensity(/um^2)	PostPre_intensity(sum_pix)		PostPost_intensity(/pix)	PostPostint_density(um)	PostPost_intensity(sum_pix)\n";
 UMcountprePOIpostPOIPOIPOI =UMcountprePOIpostPOIPOIPOI+ "Filename	#	AreaOf"+pre+"ROI		PrePOI_intensity(/pix)	PrePOIint_intensity(/um^2)	PrePOI_intensity(sum_pix)		AreaOf"+post+"ROI	PostPOI_intensity(/pix)	PostPOI_intensity(/um^2)	PostPOI_intensity(sum_pix)		AreaOf"+POI+"ROI	POIPOI_intensity(/pix)	POIPOI_intensity(/um^2)	POIPOI_intensity(sum_pix)\n";
 UMcounttriple = UMcounttriple+"Filename	#	AreaOf"+pre+post+"assocROI		PrePostPOIPOI_intensity(/pix)	PrePostPOIPOI_intensity(/um^2)	PrePostPOI_intensity(sum_pix)		#	AreaOf"+post+pre+"assocROI	PostPrePOI_intensity(/pix)	PostPrePOI_intensity(/um^2)	PostPrePOI_intensity(sum_pix)\n";
 tripleColocStr = tripleColocStr+"Filename	"+pre+post+POI+"count	total"+pre+post+POI+"count		"+post+pre+POI+"count	total"+post+pre+POI+"count		"+POI+post+pre+"count	total"+POI+post+pre+"count		"+post+POI+pre+"count	total"+post+POI+pre+"count		"+POI+pre+post+"count	total"+POI+pre+post+"count		"+pre+POI+post+"count	total"+pre+POI+post+"count\n";
-ColocAreaStr = ColocAreaStr+"Filename	#	"+pre+post+POI+"%overlap	Filename	#	"+post+pre+POI+"%overlap	Filename	#	"+POI+post+pre+"%overlap	Filename	#	"+post+POI+pre+"%overlap	Filename	#	"+POI+pre+post+"%overlap	Filename	#	"+pre+POI+post+"%overlap\n";
 
 for(f=0;f<folderlist.length;f++) {
 	Dialog.create("Thresholds "+folderlist[f]);
@@ -139,7 +137,6 @@ for(f=0;f<folderlist.length;f++) {
 	prepostPOIArray = Array.concat(prepostPOIArray,folderlist[f]+"\n");
 	postprePOIArray = Array.concat(postprePOIArray,folderlist[f]+"\n");
 	tripleColocStr = tripleColocStr+folderlist[f]+"\n";
-	ColocAreaStr = ColocAreaStr+folderlist[f]+"\n";
 
 	for(d=0;d<filelist.length;d++) {
 		//initialize :  open file, split channel, name by "red"/"green"/"blue"/"axon"
@@ -830,7 +827,7 @@ for(f=0;f<folderlist.length;f++) {
 		//	if(prePOIpostArea.length>=g)	{
 		//		prPOpo = prePOIpostArea[k];
 		//	}
-		//	ColocAreaStr = ColocAreaStr+prpoPO+"	"+poprPO+"	"+POpopr+"	"+poPOpr + "	"+POprpo+"	"+prPOpo+"\n";
+		//	******* = *******+prpoPO+"	"+poprPO+"	"+POpopr+"	"+poPOpr + "	"+POprpo+"	"+prPOpo+"\n";
 		//	g++;
 		//}
 		tripleColocStr = tripleColocStr +name+"	"+ prepostPOIcount+"	"+totalprepostPOIcount+"		"+postprePOIcount+"	"+totalpostprePOIcount+"		"+POIpostprecount+"	"+totalPOIpostprecount+"		"+postPOIprecount+"	"+totalpostPOIprecount+"		"+POIprepostcount+"	"+totalPOIprepostcount+"		"+prePOIpostcount+"	"+totalprePOIpostcount+"\n";
@@ -909,26 +906,23 @@ File.saveString(UMcountpostprepostpost,resultdir+"PostPreintensity.xls");
 File.saveString(UMcountprePOIpostPOIPOIPOI,resultdir+"prepostPOIintensity.xls");
 File.saveString(UMcounttriple,resultdir+"POItripleintensity.xls");
 File.saveString(tripleColocStr,resultdir+"tripleColoc_masks.xls");
-File.saveString(ColocAreaStr,resultdir+"tripleColoc_areas.xls");
 
-pre = "Green";
-post = "Red";
-POI = "Blue";
 
 //here's where the triple colocalized area quantification happens
-//to do next - grab the double coloc area for the three channels + their overlap - maybe best done above with the double coloc
+//"overlap" is defined as at all overlapping
+//"colocalized/coloc" is defined as at least 25% overlap
 
 folderlist=getFileList(resultdir);
-resultstring = "title	#overlapped	2channelOverlapped	AreaofTripOverlap	precount	postcount	POIcount\n";
+resultstring = "title	3chanColoc	pre-postColoc	Areaof3chanColoc	precount	postcount	POIcount\n";
 resultstring = resultstring+"pre:	"+pre+"	post:	"+post+"	POI:	"+POI+"\n";
-print("title	#overlapped	2channelOverlapped	AreaofTripOverlap	precount	postcount	POIcount");
+print("title	3chanColoc	pre-postColoc	Areaof3chanColoc	precount	postcount	POIcount");
 print("pre:	"+pre+"	post:	"+post+"	POI:	"+POI);
 for(x=0;x<folderlist.length;x++){
 	filelist=getFileList(resultdir+folderlist[x]);
 	//foldername = File.getName(resultdir+folderlist[x]);
-	resultstring = resultstring+folderlist[x]+"\n";
 	lastTitle = "temp";
 	if(File.isDirectory(resultdir+folderlist[x])==1){
+		resultstring = resultstring+folderlist[x]+"\n";
 		print(folderlist[x]);
 		for(p=0;p<filelist.length;p++){
 			if(endsWith(File.getName(resultdir+folderlist[x]+filelist[p]), "_ROI.zip")==1){
@@ -939,6 +933,7 @@ for(x=0;x<folderlist.length;x++){
 				finalCount = 0;
 				zipexists = 0;
 				doublecount = 0;
+				
 
 				name = File.getName(resultdir+folderlist[x]+filelist[p]);
 
@@ -1232,6 +1227,7 @@ for(x=0;x<folderlist.length;x++){
 										ROI = Array.concat(ROI,n);
 									}
 									roiManager("Select", ROI);
+									run("Clear Results");
 									roiManager("Measure");
 									doublecount = nResults;
 									roiManager("Select", ROI);
@@ -1254,6 +1250,7 @@ for(x=0;x<folderlist.length;x++){
 											ROI = Array.concat(ROI,n);
 										}
 										roiManager("Select", ROI);
+										run("Clear Results");
 										roiManager("Measure");
 										roiManager("Select", 0);
 										roiManager("Delete");
@@ -1343,17 +1340,5 @@ function parameterinput()
 	POI = Dialog.getChoice();
 	}
 	
-//this function opens the appropriate image from the appropriate folder in the raw data folder
-//gets the name, standardizes the properties of the image, splits the channels and discards the blue channel 
-//as "axon" to be saved elsewhere
-
-
-//this function creates a mask for the selected color channel (green or red). 
-//it takes the threshold indicated in the parameter input, uses it to point out the maxima 
-//and then runs "analyze particles" within the specified puncta size, saves the number of puncta as a string, saves the ROI, 
-//and saves the mask
-
-
-
-//this function increases the contrast for the blue channel (marking dendrites even though it says axons)
-//and measures the length of the segment (even though this is usually also done manually as a precaution)
+//there were more functions, but arrays don't populate within a function so in this macro
+//they're a little less useful
