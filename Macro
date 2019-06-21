@@ -1,7 +1,7 @@
 //the base of this macro's raw dendrite analysis work was from Lai Ding's 
 //dendrite analysis macro made for the Biederer lab in 2015
 //the triple colocalization and area overlap is from Bea Carbone in 2018/19
-//
+//https://github.com/becarbone/triple-intensity-coloc/
 
 // ImageJ initialize
 run("Colors...", "foreground=white background=black selection=magenta");
@@ -911,6 +911,7 @@ File.saveString(tripleColocStr,resultdir+"tripleColoc_masks.xls");
 //here's where the triple colocalized area quantification happens
 //"overlap" is defined as at all overlapping
 //"colocalized/coloc" is defined as at least 25% overlap
+//
 
 folderlist=getFileList(resultdir);
 resultstring = "title	3chanColoc	pre-postColoc	Areaof3chanColoc	precount	postcount	POIcount\n";
